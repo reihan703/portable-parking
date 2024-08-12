@@ -21,7 +21,7 @@ def index():
     app.logger.debug("Route accessed")
     return render_template('index.html', posts=posts)
 
-
+# -------------------------- CREATE POST --------------------------------
 def get_post(post_id):
     conn = get_db_connection()
     post = conn.execute('SELECT * FROM posts WHERE id = ?',
@@ -88,3 +88,20 @@ def delete(id):
     conn.close()
     flash('"{}" was successfully deleted!'.format(post['title']))
     return redirect(url_for('index'))
+# ----------------------------- END CREATE POST ------------------------------------
+
+
+# ----------------------------- REPORTS ---------------------------------------------
+@app.route('/reports', methods=('GET','POST'))
+def reports():
+    return render_template('reports.html')
+# ----------------------------- END REPORTS -----------------------------------------
+
+
+# ----------------------------- MANAGE TICKETS --------------------------------------
+# ----------------------------- END MANAGE TICKETS --------------------------------------
+
+
+
+# ----------------------------- MANAGE LOCATIONS --------------------------------------
+# ----------------------------- END MANAGE LOCATIONS --------------------------------------
