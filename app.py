@@ -1,10 +1,56 @@
 import sqlite3
 from flask import Flask, render_template, request, url_for, flash, redirect
 from werkzeug.exceptions import abort
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your secret key'
 
+login_manager = LoginManager(app)
+
+# Mock user database for demonstration purposes
+
+
+class User(UserMixin):
+    def __init__(self, id):
+        self.id = id
+
+
+users = {'admin': {'password': 'password'}}
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User(user_id)
+
+
+def get_db_connection():
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row
+    return conn
+
+# Your existing routes...
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if username in users and users[username]['password'] == password:
+            user = User(username)
+            login_user(user)
+            return redirect(url_for('index'))
+        else:
+            flash('Invalid username or password!')
+    return render_template('login.html')
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
 
 def get_db_connection():
     conn = sqlite3.connect('database.db')
@@ -13,7 +59,11 @@ def get_db_connection():
 
 
 @app.route('/')
+# @login_required
 def index():
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))
+    
     conn = get_db_connection()
     posts = conn.execute('SELECT * FROM posts').fetchall()
     conn.close()
