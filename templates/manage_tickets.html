@@ -1,0 +1,81 @@
+{% extends 'base.html' %} {% block content %}
+
+<form class="mb-5 px-4">
+	<div class="form-row row align-middle">
+		<div class="col-2 mr-2">
+			<input
+				type="text"
+				class="form-control mr-sm-2"
+				id="inlineFormInputName2"
+				placeholder="Jane Doe"
+			/>
+		</div>
+		<div class="col-2 d-flex justify-content-between">
+			<button type="submit" class="btn btn-outline-primary w-50 mx-2">
+				Cari
+			</button>
+			<a class="btn btn-outline-secondary w-50 mx-2">Pindai</a>
+		</div>
+	</div>
+</form>
+
+<div class="px-4">
+	<table class="table">
+		<thead class="thead-light text-center align-middle">
+			<tr>
+				<th scope="col">ID Tiket</th>
+				<th scope="col">Kode Kendaraan</th>
+				<th scope="col">Tanggal Terbuat</th>
+				<th scope="col">Tanggal Selesai</th>
+				<th scope="col">Status</th>
+				<th scope="col"></th>
+			</tr>
+		</thead>
+		<tbody class="text-center">
+			<tr>
+				<th scope="row">1</th>
+				<td>Mark</td>
+				<td>Otto</td>
+				<td>@mdo</td>
+				<td>100</td>
+				<td>
+					<div class="btn-group">
+						<button
+							type="button"
+							class="btn btn-outline-secondary dropdown-toggle"
+							data-bs-toggle="dropdown"
+							aria-expanded="false"
+						>
+							Edit
+							<i class="fa-solid fa-pencil"></i>
+						</button>
+						<ul class="dropdown-menu">
+							<!-- Dropdown menu links -->
+							<li>
+								<a class="dropdown-item" href="#"
+									>Ubah Kode Kendaraan</a
+								>
+							</li>
+							<li>
+								<a class="dropdown-item" href="#"
+									>Tutup Transaksi</a
+								>
+							</li>
+						</ul>
+					</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+<div class="container px-5 d-flex justify-content-center">
+	<img
+		src="static/assets/image.png"
+		class="img-fluid"
+		width="75%"
+		height="75%"
+		alt="image"
+	/>
+</div>
+{% endblock %}
