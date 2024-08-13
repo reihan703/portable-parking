@@ -110,6 +110,10 @@ def manage_tickets():
 @app.route('/manage_locations', methods=('GET', 'POST'))
 def manage_locations():
     return render_template('manage_locations.html')
+
+@app.route('/add_location', methods=('GET', 'POST'))
+def add_location():
+    return render_template('add_location.html')
 # ----------------------------- END MANAGE LOCATIONS --------------------------------------
 
 if __name__ == '__main__':
