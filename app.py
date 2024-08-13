@@ -99,9 +99,15 @@ def reports():
 
 
 # ----------------------------- MANAGE TICKETS --------------------------------------
+@app.route('/manage_tickets', methods=('GET', 'POST'))
+def manage_tickets():
+    return render_template('manage_tickets.html')
 # ----------------------------- END MANAGE TICKETS --------------------------------------
 
 
 
 # ----------------------------- MANAGE LOCATIONS --------------------------------------
 # ----------------------------- END MANAGE LOCATIONS --------------------------------------
+
+if __name__ == '__main__':
+    app.run()
