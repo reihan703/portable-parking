@@ -1,0 +1,80 @@
+{% extends 'base.html' %} {% block content %}
+
+<form class="mb-5 px-4">
+	<div class="form-row row align-items-center">
+		<div class="col-2 my-1">
+			<select class="form-select mr-sm-2" id="dateFilter">
+				<option selected disabled>Date Filter</option>
+				<option value="1">One</option>
+				<option value="2">Two</option>
+				<option value="3">Three</option>
+			</select>
+		</div>
+		<div class="col-2 my-1">
+			<select class="form-select mr-sm-2" id="locationFilter">
+				<option selected disabled>Location Filter</option>
+				<option value="1">One</option>
+				<option value="2">Two</option>
+				<option value="3">Three</option>
+			</select>
+		</div>
+		<div class="col-2 my-1">
+			<button type="submit" class="btn btn-outline-primary w-50">
+				Cari
+			</button>
+		</div>
+	</div>
+</form>
+
+<div class="px-4">
+	<table class="table table-striped">
+		<thead class="thead-light">
+			<tr>
+				<th scope="col" rowspan="2" class="text-center align-middle">
+					Time
+				</th>
+				<th scope="col" colspan="3" class="text-center">
+					Kode Kendaraan
+				</th>
+				<th scope="col" rowspan="2" class="text-center align-middle">
+					Total
+				</th>
+			</tr>
+			<tr class="text-center">
+				<th scope="col">MT1</th>
+				<th scope="col">MT2</th>
+				<th scope="col">MT3</th>
+			</tr>
+		</thead>
+		<tbody class="text-center">
+			<tr>
+				<th scope="row">1</th>
+				<td>Mark</td>
+				<td>Otto</td>
+				<td>@mdo</td>
+				<td>100</td>
+			</tr>
+			<tr>
+				<th scope="row">2</th>
+				<td>Jacob</td>
+				<td>Thornton</td>
+				<td>@fat</td>
+				<td>200</td>
+			</tr>
+			<tr>
+				<th scope="row">3</th>
+				<td>Larry</td>
+				<td>the Bird</td>
+				<td>@twitter</td>
+				<td>300</td>
+			</tr>
+		</tbody>
+		<tfoot class="text-center">
+			<tr>
+				<th scope="row" colspan="4">Grand Total</th>
+				<td>600</td>
+			</tr>
+		</tfoot>
+	</table>
+</div>
+{% endblock %}
