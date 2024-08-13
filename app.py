@@ -5,6 +5,7 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your secret key'
+app.config['DEBUG'] = True
 
 login_manager = LoginManager(app)
 
@@ -70,7 +71,7 @@ def index():
     app.logger.debug("Route accessed")
     return render_template('index.html', posts=posts)
 
-
+# -------------------------- CREATE POST --------------------------------
 def get_post(post_id):
     conn = get_db_connection()
     post = conn.execute('SELECT * FROM posts WHERE id = ?',
@@ -137,3 +138,40 @@ def delete(id):
     conn.close()
     flash('"{}" was successfully deleted!'.format(post['title']))
     return redirect(url_for('index'))
+# ----------------------------- END CREATE POST ------------------------------------
+
+
+# ----------------------------- REPORTS ---------------------------------------------
+@app.route('/reports', methods=('GET','POST'))
+def reports():
+    return render_template('reports.html')
+# ----------------------------- END REPORTS -----------------------------------------
+
+
+# ----------------------------- MANAGE TICKETS --------------------------------------
+@app.route('/manage_tickets', methods=('GET', 'POST'))
+def manage_tickets():
+    return render_template('manage_tickets.html')
+# ----------------------------- END MANAGE TICKETS --------------------------------------
+
+
+
+# ----------------------------- MANAGE LOCATIONS --------------------------------------
+@app.route('/manage_locations', methods=('GET', 'POST'))
+def manage_locations():
+    return render_template('manage_locations.html')
+
+@app.route('/add_location', methods=('GET', 'POST'))
+def add_location():
+    return render_template('add_location.html')
+# ----------------------------- END MANAGE LOCATIONS --------------------------------------
+
+
+
+# ----------------------------- LOGIN -----------------------------------------------------
+@app.route('/login', methods=('GET', 'POST'))
+def login():
+    return render_template('login.html')
+# ----------------------------- END LOGIN -------------------------------------------------
+if __name__ == '__main__':
+    app.run()
