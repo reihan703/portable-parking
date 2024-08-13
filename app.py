@@ -8,6 +8,7 @@ app.config['SECRET_KEY'] = 'your secret key'
 app.config['DEBUG'] = True
 
 login_manager = LoginManager(app)
+login_manager.login_view = 'login'
 
 # Mock user database for demonstration purposes
 
@@ -33,26 +34,6 @@ def get_db_connection():
 # Your existing routes...
 
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        if username in users and users[username]['password'] == password:
-            user = User(username)
-            login_user(user)
-            return redirect(url_for('index'))
-        else:
-            flash('Invalid username or password!')
-    return render_template('login.html')
-
-
-@app.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for('index'))
-
 def get_db_connection():
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
@@ -60,11 +41,11 @@ def get_db_connection():
 
 
 @app.route('/')
-# @login_required
+@login_required
 def index():
     if not current_user.is_authenticated:
-        return redirect(url_for('login'))
-    
+        return login_manager.unauthorized()
+
     conn = get_db_connection()
     posts = conn.execute('SELECT * FROM posts').fetchall()
     conn.close()
@@ -72,6 +53,8 @@ def index():
     return render_template('index.html', posts=posts)
 
 # -------------------------- CREATE POST --------------------------------
+
+
 def get_post(post_id):
     conn = get_db_connection()
     post = conn.execute('SELECT * FROM posts WHERE id = ?',
@@ -142,7 +125,8 @@ def delete(id):
 
 
 # ----------------------------- REPORTS ---------------------------------------------
-@app.route('/reports', methods=('GET','POST'))
+@app.route('/reports', methods=('GET', 'POST'))
+@login_required
 def reports():
     return render_template('reports.html')
 # ----------------------------- END REPORTS -----------------------------------------
@@ -150,28 +134,52 @@ def reports():
 
 # ----------------------------- MANAGE TICKETS --------------------------------------
 @app.route('/manage_tickets', methods=('GET', 'POST'))
+@login_required
 def manage_tickets():
     return render_template('manage_tickets.html')
 # ----------------------------- END MANAGE TICKETS --------------------------------------
 
 
-
 # ----------------------------- MANAGE LOCATIONS --------------------------------------
 @app.route('/manage_locations', methods=('GET', 'POST'))
+@login_required
 def manage_locations():
     return render_template('manage_locations.html')
 
+
 @app.route('/add_location', methods=('GET', 'POST'))
+@login_required
 def add_location():
     return render_template('add_location.html')
 # ----------------------------- END MANAGE LOCATIONS --------------------------------------
 
 
-
 # ----------------------------- LOGIN -----------------------------------------------------
-@app.route('/login', methods=('GET', 'POST'))
+# @app.route('/login', methods=('GET', 'POST'))
+# def login():
+#     return render_template('login.html')
+
+@app.route('/login', methods=['GET', 'POST'])
 def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if username in users and users[username]['password'] == password:
+            user = User(username)
+            login_user(user)
+            return redirect(url_for('index'))
+        else:
+            flash('Invalid username or password!')
     return render_template('login.html')
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+
 # ----------------------------- END LOGIN -------------------------------------------------
 if __name__ == '__main__':
     app.run()
