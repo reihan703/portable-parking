@@ -116,5 +116,12 @@ def add_location():
     return render_template('add_location.html')
 # ----------------------------- END MANAGE LOCATIONS --------------------------------------
 
+
+
+# ----------------------------- LOGIN -----------------------------------------------------
+@app.route('/login', methods=('GET', 'POST'))
+def login():
+    return render_template('login.html')
+# ----------------------------- END LOGIN -------------------------------------------------
 if __name__ == '__main__':
     app.run()
