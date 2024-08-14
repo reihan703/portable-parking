@@ -3,6 +3,8 @@ from flask import Flask, render_template, request, url_for, flash, redirect
 from werkzeug.exceptions import abort
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 
+from models.user_model import User
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your secret key'
 app.config['DEBUG'] = True
@@ -13,11 +15,6 @@ login_manager.login_view = 'login'
 # Mock user database for demonstration purposes
 
 
-class User(UserMixin):
-    def __init__(self, id):
-        self.id = id
-
-
 users = {'admin': {'password': 'password'}}
 
 
@@ -26,17 +23,13 @@ def load_user(user_id):
     return User(user_id)
 
 
-def get_db_connection():
+def get_db_connection_row():
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
     return conn
 
-# Your existing routes...
-
-
 def get_db_connection():
     conn = sqlite3.connect('database.db')
-    conn.row_factory = sqlite3.Row
     return conn
 
 
@@ -46,7 +39,7 @@ def index():
     if not current_user.is_authenticated:
         return login_manager.unauthorized()
 
-    conn = get_db_connection()
+    conn = get_db_connection_row()
     posts = conn.execute('SELECT * FROM posts').fetchall()
     conn.close()
     app.logger.debug("Route accessed")
@@ -56,7 +49,7 @@ def index():
 
 
 def get_post(post_id):
-    conn = get_db_connection()
+    conn = get_db_connection_row()
     post = conn.execute('SELECT * FROM posts WHERE id = ?',
                         (post_id,)).fetchone()
     conn.close()
@@ -80,7 +73,7 @@ def create():
         if not title:
             flash('Title is required!')
         else:
-            conn = get_db_connection()
+            conn = get_db_connection_row()
             conn.execute('INSERT INTO posts (title, content) VALUES (?, ?)',
                          (title, content))
             conn.commit()
@@ -101,7 +94,7 @@ def edit(id):
         if not title:
             flash('Title is required!')
         else:
-            conn = get_db_connection()
+            conn = get_db_connection_row()
             conn.execute('UPDATE posts SET title = ?, content = ?'
                          ' WHERE id = ?',
                          (title, content, id))
@@ -115,7 +108,7 @@ def edit(id):
 @app.route('/<int:id>/delete', methods=('POST',))
 def delete(id):
     post = get_post(id)
-    conn = get_db_connection()
+    conn = get_db_connection_row()
     conn.execute('DELETE FROM posts WHERE id = ?', (id,))
     conn.commit()
     conn.close()
@@ -164,8 +157,16 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        if username in users and users[username]['password'] == password:
-            user = User(username)
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('SELECT * FROM users WHERE username = ?',
+                            (username,))
+        user = cur.fetchone()
+        conn.commit()
+        conn.close()
+        print(user, type(user))
+        if user:
+            user = User(user[0])
             login_user(user)
             return redirect(url_for('index'))
         else:
