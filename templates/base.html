@@ -55,18 +55,23 @@
 						>
 					</li>
 					<li class="nav-item mr-3">
-						<a class="nav-link" href="{{url_for('manage_locations')}}"
+						<a
+							class="nav-link"
+							href="{{url_for('manage_locations')}}"
 							>Manage Locations</a
 						>
 					</li>
+					{% if current_user.is_authenticated %}
 					<li class="nav-item mx-5">
-						<button
+						<a
 							type="button"
 							class="btn btn-outline-danger btn-lg"
+							href="{{ url_for('logout') }}"
 						>
 							Logout
-						</button>
+						</a>
 					</li>
+					{% endif %}
 				</ul>
 			</div>
 		</nav>
@@ -94,6 +99,9 @@
 			integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
 			crossorigin="anonymous"
 		></script>
-        <script src="https://kit.fontawesome.com/6f53881389.js" crossorigin="anonymous"></script>
+		<script
+			src="https://kit.fontawesome.com/6f53881389.js"
+			crossorigin="anonymous"
+		></script>
 	</body>
 </html>

@@ -1,29 +1,55 @@
 import sqlite3
 from flask import Flask, render_template, request, url_for, flash, redirect
 from werkzeug.exceptions import abort
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+
+from models.user_model import User
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your secret key'
 app.config['DEBUG'] = True
 
+login_manager = LoginManager(app)
+login_manager.login_view = 'login'
 
-def get_db_connection():
+# Mock user database for demonstration purposes
+
+
+users = {'admin': {'password': 'password'}}
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User(user_id)
+
+
+def get_db_connection_row():
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
     return conn
 
+def get_db_connection():
+    conn = sqlite3.connect('database.db')
+    return conn
 
-@app.route('/')
+
+@app.route('/index')
+@login_required
 def index():
-    conn = get_db_connection()
+    if not current_user.is_authenticated:
+        return login_manager.unauthorized()
+
+    conn = get_db_connection_row()
     posts = conn.execute('SELECT * FROM posts').fetchall()
     conn.close()
     app.logger.debug("Route accessed")
     return render_template('index.html', posts=posts)
 
 # -------------------------- CREATE POST --------------------------------
+
+
 def get_post(post_id):
-    conn = get_db_connection()
+    conn = get_db_connection_row()
     post = conn.execute('SELECT * FROM posts WHERE id = ?',
                         (post_id,)).fetchone()
     conn.close()
@@ -47,7 +73,7 @@ def create():
         if not title:
             flash('Title is required!')
         else:
-            conn = get_db_connection()
+            conn = get_db_connection_row()
             conn.execute('INSERT INTO posts (title, content) VALUES (?, ?)',
                          (title, content))
             conn.commit()
@@ -68,7 +94,7 @@ def edit(id):
         if not title:
             flash('Title is required!')
         else:
-            conn = get_db_connection()
+            conn = get_db_connection_row()
             conn.execute('UPDATE posts SET title = ?, content = ?'
                          ' WHERE id = ?',
                          (title, content, id))
@@ -82,7 +108,7 @@ def edit(id):
 @app.route('/<int:id>/delete', methods=('POST',))
 def delete(id):
     post = get_post(id)
-    conn = get_db_connection()
+    conn = get_db_connection_row()
     conn.execute('DELETE FROM posts WHERE id = ?', (id,))
     conn.commit()
     conn.close()
@@ -92,7 +118,8 @@ def delete(id):
 
 
 # ----------------------------- REPORTS ---------------------------------------------
-@app.route('/reports', methods=('GET','POST'))
+@app.route('/', methods=('GET', 'POST'))
+@login_required
 def reports():
     return render_template('reports.html')
 # ----------------------------- END REPORTS -----------------------------------------
@@ -100,28 +127,56 @@ def reports():
 
 # ----------------------------- MANAGE TICKETS --------------------------------------
 @app.route('/manage_tickets', methods=('GET', 'POST'))
+@login_required
 def manage_tickets():
     return render_template('manage_tickets.html')
 # ----------------------------- END MANAGE TICKETS --------------------------------------
 
 
-
 # ----------------------------- MANAGE LOCATIONS --------------------------------------
 @app.route('/manage_locations', methods=('GET', 'POST'))
+@login_required
 def manage_locations():
     return render_template('manage_locations.html')
 
+
 @app.route('/add_location', methods=('GET', 'POST'))
+@login_required
 def add_location():
     return render_template('add_location.html')
 # ----------------------------- END MANAGE LOCATIONS --------------------------------------
 
 
-
 # ----------------------------- LOGIN -----------------------------------------------------
-@app.route('/login', methods=('GET', 'POST'))
+@app.route('/login', methods=['GET', 'POST'])
 def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('SELECT * FROM users WHERE username = ? and password = ?',
+                            (username, password))
+        user = cur.fetchone()
+        conn.commit()
+        conn.close()
+        print(user, type(user))
+        if user:
+            user = User(user[0])
+            login_user(user)
+            return redirect(url_for('reports'))
+        else:
+            flash('Invalid username or password!')
     return render_template('login.html')
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
+
+
 # ----------------------------- END LOGIN -------------------------------------------------
 if __name__ == '__main__':
     app.run()

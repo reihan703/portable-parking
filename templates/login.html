@@ -2,13 +2,14 @@
 
 <div class="container align-middle text-center mt-5 py-5 bg-dark w-25 ">
     <h1 class="text-light">Portable Parking</h1>
-    <form>
+    <form method="POST" action="/login">
         <div class="d-flex justify-content-center">
             <div class="mb-3 w-50">
                 <input
                     type="text"
+                    name="username"
                     class="form-control"
-                    id="exampleInputEmail1"
+                    id="inputUsername"
                     placeholder="Username..."
                 />
             </div>
@@ -17,6 +18,7 @@
             <div class="mb-3 w-50">
                 <input
                     type="password"
+                    name="password"
                     class="form-control"
                     id="userPassword"
                     placeholder="Kata Sandi..."
