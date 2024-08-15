@@ -12,11 +12,6 @@ app.config['DEBUG'] = True
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
-# Mock user database for demonstration purposes
-
-
-users = {'admin': {'password': 'password'}}
-
 
 @login_manager.user_loader
 def load_user(user_id):
