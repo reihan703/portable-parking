@@ -116,7 +116,36 @@ def delete(id):
 @app.route('/', methods=('GET', 'POST'))
 @login_required
 def reports():
-    return render_template('reports.html')
+    conn = get_db_connection_row()
+    user_id = session["id"]
+    # Fetching the location ID(s) associated with the user
+    location_ids = conn.execute(
+        'SELECT id FROM locations WHERE location_owner_id = ?', (user_id,)
+    ).fetchall()
+
+    # Extract the IDs into a list
+    location_ids = [row['id'] for row in location_ids]
+
+    # If there's only one location, use that ID
+    if len(location_ids) == 1:
+        location_id = location_ids[0]
+        reports = conn.execute(
+            'SELECT * FROM transactions WHERE location_id = ?', (location_id,)
+        ).fetchall()
+        reports = [report for report in reports]
+
+    elif len(location_ids) > 1:
+        # If there are multiple locations, use an IN clause
+        query = 'SELECT * FROM transactions WHERE location_id IN ({})'.format(
+            ','.join(['?'] * len(location_ids))
+        )
+        reports = conn.execute(query, location_ids).fetchall()
+        reports = [report for report in reports]
+    else:
+        # No locations found, so reports will be empty
+        reports = []
+    conn.close()
+    return render_template('reports.html', reports = reports)
 # ----------------------------- END REPORTS -----------------------------------------
 
 

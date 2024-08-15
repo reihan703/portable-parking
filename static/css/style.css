@@ -1,6 +1,9 @@
-h1 {
-    border: 2px #eee solid;
-    color: brown;
-    text-align: center;
-    padding: 10px;
+.dark-box {
+    background-color: #343a40; /* Dark background color */
+    color: #ffffff; /* White text color for contrast */
+    padding: 20px;
+    border-radius: 8px; /* Optional: adds rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Optional: adds shadow for depth */
+    min-height: 50rem; /* Minimum height for the dark box */
+    max-width: 30%; /* Minimum width for the dark box */
 }
