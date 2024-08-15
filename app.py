@@ -33,7 +33,7 @@ def get_db_connection():
     return conn
 
 
-@app.route('/')
+@app.route('/index')
 @login_required
 def index():
     if not current_user.is_authenticated:
@@ -118,7 +118,7 @@ def delete(id):
 
 
 # ----------------------------- REPORTS ---------------------------------------------
-@app.route('/reports', methods=('GET', 'POST'))
+@app.route('/', methods=('GET', 'POST'))
 @login_required
 def reports():
     return render_template('reports.html')
@@ -148,10 +148,6 @@ def add_location():
 
 
 # ----------------------------- LOGIN -----------------------------------------------------
-# @app.route('/login', methods=('GET', 'POST'))
-# def login():
-#     return render_template('login.html')
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -159,8 +155,8 @@ def login():
         password = request.form['password']
         conn = get_db_connection()
         cur = conn.cursor()
-        cur.execute('SELECT * FROM users WHERE username = ?',
-                            (username,))
+        cur.execute('SELECT * FROM users WHERE username = ? and password = ?',
+                            (username, password))
         user = cur.fetchone()
         conn.commit()
         conn.close()
@@ -168,7 +164,7 @@ def login():
         if user:
             user = User(user[0])
             login_user(user)
-            return redirect(url_for('index'))
+            return redirect(url_for('reports'))
         else:
             flash('Invalid username or password!')
     return render_template('login.html')
@@ -178,7 +174,7 @@ def login():
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('index'))
+    return redirect(url_for('login'))
 
 
 # ----------------------------- END LOGIN -------------------------------------------------
