@@ -34,33 +34,26 @@
 	</div>
 </form>
 
-<div class="px-4">
+<div class="px-4 container">
 	{% if reports %}
 		<table class="table table-striped">
 			<thead class="thead-light">
 				<tr>
-					<th scope="col" rowspan="2" class="text-center align-middle">
+					<th scope="col" class="text-center align-middle">
 						Time
 					</th>
-					<th scope="col" colspan="3" class="text-center">
+					<th scope="col" class="text-center">
 						Kode Kendaraan
 					</th>
-					<th scope="col" rowspan="2" class="text-center align-middle">
-						Total
+					<th scope="col" class="text-center align-middle">
+						Harga
 					</th>
-				</tr>
-				<tr class="text-center">
-					<th scope="col">MT1</th>
-					<th scope="col">MT2</th>
-					<th scope="col">MT3</th>
 				</tr>
 			</thead>
 			<tbody class="text-center">
 				{% for report in reports %}
 					<tr>
 						<th scope="row">{{ report['created'] }}</th>
-						<td>Mark</td>
-						<td>Otto</td>
 						<td>@mdo</td>
 						<td>{{ report['price'] }}</td>
 					</tr>
@@ -68,7 +61,7 @@
 			</tbody>
 			<tfoot class="text-center">
 				<tr>
-					<th scope="row" colspan="4">Grand Total</th>
+					<th scope="row" colspan="2">Grand Total</th>
 					<td>600</td>
 				</tr>
 			</tfoot>
