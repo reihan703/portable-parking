@@ -1,5 +1,5 @@
 import sqlite3
-from flask import Flask, render_template, request, url_for, flash, redirect
+from flask import Flask, render_template, request, session, url_for, flash, redirect
 from werkzeug.exceptions import abort
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 
@@ -160,9 +160,13 @@ def login():
         user = cur.fetchone()
         conn.commit()
         conn.close()
-        print(user, type(user))
         if user:
-            user = User(user[0])
+            # Get id
+            user_id = user[0]
+            user_role = user[4]
+            user = User(user_id)
+            session['id'] = user_id
+            session['role'] = user_role
             login_user(user)
             return redirect(url_for('reports'))
         else:
