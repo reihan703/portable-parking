@@ -20,7 +20,7 @@
 	</head>
 	<body>
 		<nav class="navbar navbar-expand-md navbar-dark bg-dark px-5 py-3">
-			<a class="navbar-brand" href="{{ url_for('index')}}"
+			<a class="navbar-brand" href="{{ url_for('reports')}}"
 				>Portable Parking</a
 			>
 			<button
@@ -39,6 +39,7 @@
 				id="navbarNav"
 			>
 				<ul class="navbar-nav">
+					{% if current_user.is_authenticated %}
 					<li class="nav-item mr-3">
 						<a class="nav-link" href="{{url_for('create')}}"
 							>New Post</a
@@ -54,6 +55,7 @@
 							>Manage Tickets</a
 						>
 					</li>
+					{% if session['role']=='admin' %}
 					<li class="nav-item mr-3">
 						<a
 							class="nav-link"
@@ -61,7 +63,7 @@
 							>Manage Locations</a
 						>
 					</li>
-					{% if current_user.is_authenticated %}
+					{% endif %}
 					<li class="nav-item mx-5">
 						<a
 							type="button"
