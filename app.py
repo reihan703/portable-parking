@@ -132,7 +132,11 @@ def reports():
         reports = conn.execute(
             'SELECT * FROM transactions WHERE location_id = ?', (location_id,)
         ).fetchall()
-        reports = [report for report in reports]
+
+        # Calculate the grand total for the single location
+        grand_total = conn.execute(
+            'SELECT SUM(price) FROM transactions WHERE location_id = ?', (location_id,)
+        ).fetchone()[0]
 
     elif len(location_ids) > 1:
         # If there are multiple locations, use an IN clause
@@ -140,12 +144,21 @@ def reports():
             ','.join(['?'] * len(location_ids))
         )
         reports = conn.execute(query, location_ids).fetchall()
-        reports = [report for report in reports]
+
+        # Calculate the grand total for multiple locations
+        grand_total_query = 'SELECT SUM(price) FROM transactions WHERE location_id IN ({})'.format(
+            ','.join(['?'] * len(location_ids))
+        )
+        grand_total = conn.execute(
+            grand_total_query, location_ids).fetchone()[0]
     else:
         # No locations found, so reports will be empty
         reports = []
+        grand_total = 0  # No data, so total is 0
+
     conn.close()
-    return render_template('reports.html', reports = reports)
+
+    return render_template('reports.html', reports=reports, grand_total=grand_total)
 # ----------------------------- END REPORTS -----------------------------------------
 
 
