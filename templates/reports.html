@@ -27,54 +27,49 @@
 </form>
 
 <div class="px-4">
-	<table class="table table-striped">
-		<thead class="thead-light">
-			<tr>
-				<th scope="col" rowspan="2" class="text-center align-middle">
-					Time
-				</th>
-				<th scope="col" colspan="3" class="text-center">
-					Kode Kendaraan
-				</th>
-				<th scope="col" rowspan="2" class="text-center align-middle">
-					Total
-				</th>
-			</tr>
-			<tr class="text-center">
-				<th scope="col">MT1</th>
-				<th scope="col">MT2</th>
-				<th scope="col">MT3</th>
-			</tr>
-		</thead>
-		<tbody class="text-center">
-			<tr>
-				<th scope="row">1</th>
-				<td>Mark</td>
-				<td>Otto</td>
-				<td>@mdo</td>
-				<td>100</td>
-			</tr>
-			<tr>
-				<th scope="row">2</th>
-				<td>Jacob</td>
-				<td>Thornton</td>
-				<td>@fat</td>
-				<td>200</td>
-			</tr>
-			<tr>
-				<th scope="row">3</th>
-				<td>Larry</td>
-				<td>the Bird</td>
-				<td>@twitter</td>
-				<td>300</td>
-			</tr>
-		</tbody>
-		<tfoot class="text-center">
-			<tr>
-				<th scope="row" colspan="4">Grand Total</th>
-				<td>600</td>
-			</tr>
-		</tfoot>
-	</table>
+	{% if reports %}
+		<table class="table table-striped">
+			<thead class="thead-light">
+				<tr>
+					<th scope="col" rowspan="2" class="text-center align-middle">
+						Time
+					</th>
+					<th scope="col" colspan="3" class="text-center">
+						Kode Kendaraan
+					</th>
+					<th scope="col" rowspan="2" class="text-center align-middle">
+						Total
+					</th>
+				</tr>
+				<tr class="text-center">
+					<th scope="col">MT1</th>
+					<th scope="col">MT2</th>
+					<th scope="col">MT3</th>
+				</tr>
+			</thead>
+			<tbody class="text-center">
+				{% for report in reports %}
+					<tr>
+						<th scope="row">{{ report['created'] }}</th>
+						<td>Mark</td>
+						<td>Otto</td>
+						<td>@mdo</td>
+						<td>{{ report['price'] }}</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+			<tfoot class="text-center">
+				<tr>
+					<th scope="row" colspan="4">Grand Total</th>
+					<td>600</td>
+				</tr>
+			</tfoot>
+		</table>
+	{% else %}
+		 <!-- Bootstrap 5 warning alert -->
+		<div class="alert alert-warning text-center" role="alert">
+			⚠️ Empty data, please use the filter first.
+		</div>
+	{% endif %}
 </div>
 {% endblock %}
