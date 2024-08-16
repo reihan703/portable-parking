@@ -23,6 +23,7 @@ def get_db_connection_row():
     conn.row_factory = sqlite3.Row
     return conn
 
+
 def get_db_connection():
     conn = sqlite3.connect('database.db')
     return conn
@@ -159,6 +160,35 @@ def reports():
     conn.close()
 
     return render_template('reports.html', reports=reports, grand_total=grand_total)
+
+
+@app.route('/filter_reports', methods=['GET'])
+def filter_reports():
+    dateFilter = request.args.get('dateFilter')
+    locationFilter = request.args.get('locationFilter')
+    vehicleFilter = request.args.get('vehicleFilter')
+
+    # The 1=1 in a SQL query is a common technique used to simplify dynamic SQL generation.
+    query = 'SELECT * FROM transactions WHERE 1=1'
+    params = []
+
+    if dateFilter:
+        query += ' AND created = ?'
+        params.append(dateFilter)
+
+    if locationFilter:
+        query += ' AND location_id = ?'
+        params.append(locationFilter)
+
+    if vehicleFilter:
+        query += ' AND vehicle_code = ?'
+        params.append(vehicleFilter)
+
+    conn = get_db_connection_row()
+    reports = conn.execute(query, params).fetchall()
+    conn.close()
+
+    return render_template('reports.html', reports=reports)
 # ----------------------------- END REPORTS -----------------------------------------
 
 
@@ -193,7 +223,7 @@ def login():
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute('SELECT * FROM users WHERE username = ? and password = ?',
-                            (username, password))
+                    (username, password))
         user = cur.fetchone()
         conn.commit()
         conn.close()

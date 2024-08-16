@@ -1,17 +1,17 @@
 {% extends 'base.html' %} {% block content %}
 
-<form class="mb-5 px-4">
+<form method="GET" action="{{ url_for('filter_reports') }}" class="mb-5 px-4">
 	<div class="form-row row align-items-center">
 		<div class="col-2 my-1">
-			<select class="form-select mr-sm-2" id="dateFilter">
+			<select class="form-select mr-sm-2" id="dateFilter" name="dateFilter">
 				<option value="" selected disabled>Filter Tanggal</option>
-				<option value="1">One</option>
+				<option value="2024-8-15 21:00">One</option>
 				<option value="2">Two</option>
 				<option value="3">Three</option>
 			</select>
 		</div>
 		<div class="col-2 my-1">
-			<select class="form-select mr-sm-2" id="locationFilter">
+			<select class="form-select mr-sm-2" id="locationFilter" name="locationFilter">
 				<option value="" selected disabled>Filter Lokasi</option>
 				<option value="1">One</option>
 				<option value="2">Two</option>
@@ -19,9 +19,9 @@
 			</select>
 		</div>
 		<div class="col-2 my-1">
-			<select class="form-select mr-sm-2" id="vehicleFilter">
+			<select class="form-select mr-sm-2" id="vehicleFilter" name="vehicleFilter">
 				<option value="" selected disabled>Filter Kode Kenaraan</option>
-				<option value="1">One</option>
+				<option value="MT1">One</option>
 				<option value="2">Two</option>
 				<option value="3">Three</option>
 			</select>
@@ -54,7 +54,7 @@
 				{% for report in reports %}
 					<tr>
 						<th scope="row">{{ report['created'] }}</th>
-						<td>@mdo</td>
+						<td>{{ report['vehicle_code'] }}</td>
 						<td>{{ report['price'] }}</td>
 					</tr>
 				{% endfor %}
