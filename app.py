@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 import sqlite3
 from flask import Flask, render_template, request, session, url_for, flash, redirect
 from werkzeug.exceptions import abort
@@ -22,6 +23,7 @@ def get_db_connection_row():
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
     return conn
+
 
 def get_db_connection():
     conn = sqlite3.connect('database.db')
@@ -118,34 +120,63 @@ def delete(id):
 def reports():
     conn = get_db_connection_row()
     user_id = session["id"]
-    # Fetching the location ID(s) associated with the user
-    location_ids = conn.execute(
-        'SELECT id FROM locations WHERE location_owner_id = ?', (user_id,)
+    user_id = current_user.id
+    reports = []
+
+    # Query the database for options
+    now = datetime.now()
+    date_options = [(now - timedelta(days=i)).strftime('%Y-%m-%d')
+                    for i in range(14)]
+
+    location_options = conn.execute(
+        'SELECT DISTINCT id, location_name FROM locations WHERE location_owner_id = ?', (user_id,)).fetchall()
+
+    vehicle_options = conn.execute(
+        """
+        SELECT DISTINCT t.vehicle_code 
+        FROM transactions t 
+        JOIN locations l ON t.location_id = l.id 
+        WHERE l.location_owner_id = ?
+        """,
+        (user_id,)
     ).fetchall()
 
-    # Extract the IDs into a list
-    location_ids = [row['id'] for row in location_ids]
+    if request.method == 'POST':
+        user_id = current_user.id
+        dateFilter = request.form.get('dateFilter')
+        locationFilter = request.form.get('locationFilter')
+        vehicleFilter = request.form.get('vehicleFilter')
 
-    # If there's only one location, use that ID
-    if len(location_ids) == 1:
-        location_id = location_ids[0]
-        reports = conn.execute(
-            'SELECT * FROM transactions WHERE location_id = ?', (location_id,)
-        ).fetchall()
-        reports = [report for report in reports]
+        query = '''
+            SELECT t.*, l.location_name 
+            FROM transactions t 
+            JOIN locations l ON t.location_id = l.id 
+            WHERE l.location_owner_id = ?
+        '''
+        params = [user_id]
 
-    elif len(location_ids) > 1:
-        # If there are multiple locations, use an IN clause
-        query = 'SELECT * FROM transactions WHERE location_id IN ({})'.format(
-            ','.join(['?'] * len(location_ids))
-        )
-        reports = conn.execute(query, location_ids).fetchall()
-        reports = [report for report in reports]
-    else:
-        # No locations found, so reports will be empty
-        reports = []
+        if dateFilter:
+            query += ' AND strftime("%Y-%m-%d", t.created) = ?'
+            params.append(dateFilter)
+
+        if locationFilter:
+            query += ' AND t.location_id = ?'
+            params.append(locationFilter)
+
+        if vehicleFilter:
+            query += ' AND t.vehicle_code = ?'
+            params.append(vehicleFilter)
+
+        reports = conn.execute(query, params).fetchall()
+
     conn.close()
-    return render_template('reports.html', reports = reports)
+
+    return render_template('reports.html',
+                           reports=reports,
+                           date_options=date_options,
+                           location_options=location_options,
+                           vehicle_options=vehicle_options)
+
 # ----------------------------- END REPORTS -----------------------------------------
 
 
@@ -180,7 +211,7 @@ def login():
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute('SELECT * FROM users WHERE username = ? and password = ?',
-                            (username, password))
+                    (username, password))
         user = cur.fetchone()
         conn.commit()
         conn.close()

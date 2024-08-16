@@ -27,6 +27,10 @@ cur.execute("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?
             )
 
 cur.execute("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)",
+            ('owner2', 'owner2@gmail.com', 'password', 'owner')
+            )
+
+cur.execute("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)",
             ('worker', 'worker@gmail.com', 'password', 'worker')
             )
 
@@ -35,9 +39,23 @@ cur.execute("INSERT INTO locations (location_name, location_owner_id) VALUES (?,
             ('testing', '2')
             )
 
+cur.execute("INSERT INTO locations (location_name, location_owner_id) VALUES (?, ?)",
+            ('mencoba', '3')
+            )
+
 # Create dummy transactions
 cur.execute("INSERT INTO transactions (vehicle_code, price, created, location_id) VALUES (?, ?, ?, ?)",
-            ('MT1', '2000', '2024-8-15 21:00', '1')
+            ('MT1', '2000', '2024-08-15 21:00', '1')
+            )
+cur.execute("INSERT INTO transactions (vehicle_code, price, created, location_id) VALUES (?, ?, ?, ?)",
+            ('MT2', '3000', '2024-08-17 21:00', '1')
+            )
+
+cur.execute("INSERT INTO transactions (vehicle_code, price, created, location_id) VALUES (?, ?, ?, ?)",
+            ('MT1', '2000', '2024-08-15 21:00', '2')
+            )
+cur.execute("INSERT INTO transactions (vehicle_code, price, created, location_id) VALUES (?, ?, ?, ?)",
+            ('MT2', '4000', '2024-08-13 21:00', '2')
             )
 
 
