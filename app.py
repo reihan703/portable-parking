@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 import sqlite3
 from flask import Flask, render_template, request, session, url_for, flash, redirect
 from werkzeug.exceptions import abort
@@ -119,76 +120,63 @@ def delete(id):
 def reports():
     conn = get_db_connection_row()
     user_id = session["id"]
-    # Fetching the location ID(s) associated with the user
-    location_ids = conn.execute(
-        'SELECT id FROM locations WHERE location_owner_id = ?', (user_id,)
+    user_id = current_user.id
+    reports = []
+
+    # Query the database for options
+    now = datetime.now()
+    date_options = [(now - timedelta(days=i)).strftime('%Y-%m-%d')
+                    for i in range(14)]
+
+    location_options = conn.execute(
+        'SELECT DISTINCT id, location_name FROM locations WHERE location_owner_id = ?', (user_id,)).fetchall()
+
+    vehicle_options = conn.execute(
+        """
+        SELECT DISTINCT t.vehicle_code 
+        FROM transactions t 
+        JOIN locations l ON t.location_id = l.id 
+        WHERE l.location_owner_id = ?
+        """,
+        (user_id,)
     ).fetchall()
 
-    # Extract the IDs into a list
-    location_ids = [row['id'] for row in location_ids]
+    if request.method == 'POST':
+        user_id = current_user.id
+        dateFilter = request.form.get('dateFilter')
+        locationFilter = request.form.get('locationFilter')
+        vehicleFilter = request.form.get('vehicleFilter')
 
-    # If there's only one location, use that ID
-    if len(location_ids) == 1:
-        location_id = location_ids[0]
-        reports = conn.execute(
-            'SELECT * FROM transactions WHERE location_id = ?', (location_id,)
-        ).fetchall()
+        query = '''
+            SELECT t.*, l.location_name 
+            FROM transactions t 
+            JOIN locations l ON t.location_id = l.id 
+            WHERE l.location_owner_id = ?
+        '''
+        params = [user_id]
 
-        # Calculate the grand total for the single location
-        grand_total = conn.execute(
-            'SELECT SUM(price) FROM transactions WHERE location_id = ?', (location_id,)
-        ).fetchone()[0]
+        if dateFilter:
+            query += ' AND strftime("%Y-%m-%d", t.created) = ?'
+            params.append(dateFilter)
 
-    elif len(location_ids) > 1:
-        # If there are multiple locations, use an IN clause
-        query = 'SELECT * FROM transactions WHERE location_id IN ({})'.format(
-            ','.join(['?'] * len(location_ids))
-        )
-        reports = conn.execute(query, location_ids).fetchall()
+        if locationFilter:
+            query += ' AND t.location_id = ?'
+            params.append(locationFilter)
 
-        # Calculate the grand total for multiple locations
-        grand_total_query = 'SELECT SUM(price) FROM transactions WHERE location_id IN ({})'.format(
-            ','.join(['?'] * len(location_ids))
-        )
-        grand_total = conn.execute(
-            grand_total_query, location_ids).fetchone()[0]
-    else:
-        # No locations found, so reports will be empty
-        reports = []
-        grand_total = 0  # No data, so total is 0
+        if vehicleFilter:
+            query += ' AND t.vehicle_code = ?'
+            params.append(vehicleFilter)
+
+        reports = conn.execute(query, params).fetchall()
 
     conn.close()
 
-    return render_template('reports.html', reports=reports, grand_total=grand_total)
+    return render_template('reports.html',
+                           reports=reports,
+                           date_options=date_options,
+                           location_options=location_options,
+                           vehicle_options=vehicle_options)
 
-
-@app.route('/filter_reports', methods=['GET'])
-def filter_reports():
-    dateFilter = request.args.get('dateFilter')
-    locationFilter = request.args.get('locationFilter')
-    vehicleFilter = request.args.get('vehicleFilter')
-
-    # The 1=1 in a SQL query is a common technique used to simplify dynamic SQL generation.
-    query = 'SELECT * FROM transactions WHERE 1=1'
-    params = []
-
-    if dateFilter:
-        query += ' AND created = ?'
-        params.append(dateFilter)
-
-    if locationFilter:
-        query += ' AND location_id = ?'
-        params.append(locationFilter)
-
-    if vehicleFilter:
-        query += ' AND vehicle_code = ?'
-        params.append(vehicleFilter)
-
-    conn = get_db_connection_row()
-    reports = conn.execute(query, params).fetchall()
-    conn.close()
-
-    return render_template('reports.html', reports=reports)
 # ----------------------------- END REPORTS -----------------------------------------
 
 

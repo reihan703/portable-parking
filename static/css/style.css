@@ -7,3 +7,8 @@
     min-height: 50rem; /* Minimum height for the dark box */
     max-width: 30%; /* Minimum width for the dark box */
 }
+
+.dateFilter {
+    max-height: 3rem; /* Adjust height as needed */
+    overflow-y: auto; /* Add vertical scrolling if content overflows */
+}

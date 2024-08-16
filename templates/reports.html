@@ -1,29 +1,29 @@
 {% extends 'base.html' %} {% block content %}
 
-<form method="GET" action="{{ url_for('filter_reports') }}" class="mb-5 px-4">
+<form method="POST" action="{{ url_for('reports') }}" class="mb-5 px-4">
 	<div class="form-row row align-items-center">
 		<div class="col-2 my-1">
-			<select class="form-select mr-sm-2" id="dateFilter" name="dateFilter">
-				<option value="" selected disabled>Filter Tanggal</option>
-				<option value="2024-8-15 21:00">One</option>
-				<option value="2">Two</option>
-				<option value="3">Three</option>
+			<select class="form-select mr-sm-2 dateFilter" id="dateFilter" name="dateFilter">
+				<option value="" selected>Semua Tanggal</option>
+				{% for date in date_options %}
+                    <option value="{{ date }}">{{ date }}</option>
+                {% endfor %}
 			</select>
 		</div>
 		<div class="col-2 my-1">
 			<select class="form-select mr-sm-2" id="locationFilter" name="locationFilter">
-				<option value="" selected disabled>Filter Lokasi</option>
-				<option value="1">One</option>
-				<option value="2">Two</option>
-				<option value="3">Three</option>
+				<option value="" selected>Semua Lokasi</option>
+				{% for location in location_options %}
+                    <option value="{{ location['id'] }}">{{ location['location_name'] }}</option>
+                {% endfor %}
 			</select>
 		</div>
 		<div class="col-2 my-1">
 			<select class="form-select mr-sm-2" id="vehicleFilter" name="vehicleFilter">
-				<option value="" selected disabled>Filter Kode Kenaraan</option>
-				<option value="MT1">One</option>
-				<option value="2">Two</option>
-				<option value="3">Three</option>
+				<option value="" selected>Semua Kode Kendaraan</option>
+				{% for vehicle in vehicle_options %}
+                    <option value="{{ vehicle['vehicle_code'] }}">{{ vehicle['vehicle_code'] }}</option>
+                {% endfor %}
 			</select>
 		</div>
 		<div class="col-2 my-1">
