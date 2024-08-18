@@ -187,23 +187,27 @@ def reports():
 @app.route('/manage_tickets', methods=('GET', 'POST'))
 @login_required
 def manage_tickets():
+    conn = get_db_connection_row()
+    transaction=''
+    ticket = ''
     if request.method == 'POST':
-        data = request.get_json()
-        ticket = data.get('ticket')
-        # Process the ticket data as needed
-        print(f"Received ticket: {ticket}")
-        # return jsonify({"status": "success", "ticket": ticket})
-        # Redirect to a different route if the ticket is successfully processed
-        return redirect(url_for('ticket_success', ticket=ticket))
-    return render_template('manage_tickets.html')
+        ticket = request.form.get('ticketInput')
+        if not ticket:
+            try:
+                data = request.get_json()
+                ticket = data.get('ticket')
+            except:
+                print('empty')
+         # Query the database to find a matching transaction
+        if ticket:
+            transaction = conn.execute(
+                "SELECT * FROM transactions WHERE id = ?", (ticket,)).fetchall()
 
+        # Handle if no transaction is found
+        if not transaction:
+            flash("Data transaksi tidak ditemukan.", "info")
 
-@app.route('/ticket_success')
-@login_required
-def ticket_success():
-    # Retrieve the ticket parameter from the query string
-    ticket = request.args.get('ticket')
-    return render_template('manage_tickets.html', ticket=ticket)
+    return render_template('manage_tickets.html', transaction=transaction)
 
 
 # ----------------------------- END MANAGE TICKETS --------------------------------------
