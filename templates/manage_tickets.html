@@ -1,72 +1,123 @@
 {% extends 'base.html' %} {% block content %}
-
-<form class="mb-5 px-4">
+<form class="mb-5 px-4" method="POST" action="{{ url_for('manage_tickets') }}">
 	<div class="form-row row align-middle">
 		<div class="col-2 mr-2">
 			<input
 				type="text"
 				class="form-control mr-sm-2"
-				id="inlineFormInputName2"
-				placeholder="Jane Doe"
+				id="ticketInput"
+				name="ticketInput"
+				placeholder="Masukkan Kode Tiket"
+				autofocus
 			/>
 		</div>
 		<div class="col-2 d-flex justify-content-between">
-			<button type="submit" class="btn btn-outline-primary w-50 mx-2">
+			<button type="submit" id="searchTicket" class="btn btn-outline-primary w-50 mx-2">
 				Cari
 			</button>
-			<a class="btn btn-outline-secondary w-50 mx-2">Pindai</a>
+			<a
+				type="submit"
+				class="btn btn-outline-secondary w-50 mx-2"
+				data-bs-toggle="modal"
+				data-bs-target="#exampleModal"
+			>
+				Pindai
+			</a>
 		</div>
 	</div>
 </form>
 
-<div class="px-4">
-	<table class="table">
-		<thead class="thead-light text-center align-middle">
-			<tr>
-				<th scope="col">ID Tiket</th>
-				<th scope="col">Kode Kendaraan</th>
-				<th scope="col">Tanggal Terbuat</th>
-				<th scope="col">Tanggal Selesai</th>
-				<th scope="col">Status</th>
-				<th scope="col"></th>
-			</tr>
-		</thead>
-		<tbody class="text-center">
-			<tr>
-				<th scope="row">1</th>
-				<td>Mark</td>
-				<td>Otto</td>
-				<td>@mdo</td>
-				<td>100</td>
-				<td>
-					<div class="btn-group">
-						<a
-							type="button"
-							class="btn btn-outline-warning dropdown-toggle"
-							data-bs-toggle="dropdown"
-							aria-expanded="false"
-						>
-							Sunting
-							<i class="fa-solid fa-pencil"></i>
-						</a>
-						<ul class="dropdown-menu">
-							<!-- Dropdown menu links -->
-							<li>
-								<a class="dropdown-item" href="#"
-									>Ubah Kode Kendaraan</a
-								>
-							</li>
-							<li>
-								<a class="dropdown-item" href="#"
-									>Tutup Transaksi</a
-								>
-							</li>
-						</ul>
+<div class="modal" id="exampleModal" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Pindai Kode QR</h5>
+				<button
+					type="button"
+					class="btn-close"
+					data-bs-dismiss="modal"
+					aria-label="Close"
+				></button>
+			</div>
+			<div class="modal-body">
+				<div class="container d-flex justify-content-center mb-5">
+					<div class="section">
+						<div id="my-qr-reader"></div>
 					</div>
-				</td>
-			</tr>
-		</tbody>
-	</table>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button
+					type="button"
+					class="btn btn-secondary"
+					data-bs-dismiss="modal"
+				>
+					Close
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="px-4">
+	{% if transaction %}
+		<table class="table">
+			<thead class="thead-light text-center align-middle">
+				<tr>
+					<th scope="col">ID Tiket</th>
+					<th scope="col">Kode Kendaraan</th>
+					<th scope="col">Tanggal Terbuat</th>
+					<th scope="col">Tanggal Selesai</th>
+					<th scope="col">Status</th>
+					<th scope="col">Harga</th>
+					<th scope="col"></th>
+				</tr>
+			</thead>
+			<tbody class="text-center">
+				{% for tr in transaction %}
+					<tr>
+						<th scope="row">{{  tr['id']  }}</th>
+						<td>{{ tr['vehicle_code'] }}</td>
+						<td>{{ tr['created'] }}</td>
+						<td>Tanggal selesai</td>
+						<td>Keluar</td>
+						<td>2000</td>
+						<td>
+							<div class="btn-group">
+								<a
+									type="button"
+									class="btn btn-outline-warning dropdown-toggle"
+									data-bs-toggle="dropdown"
+									aria-expanded="false"
+								>
+									Sunting
+									<i class="fa-solid fa-pencil"></i>
+								</a>
+								<ul class="dropdown-menu">
+									<!-- Dropdown menu links -->
+									<li>
+										<a class="dropdown-item" href="#"
+											>Ubah Kode Kendaraan</a
+										>
+									</li>
+									<li>
+										<a class="dropdown-item" href="#"
+											>Tutup Transaksi</a
+										>
+									</li>
+								</ul>
+							</div>
+						</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	{% else %}
+		 <!-- Bootstrap 5 warning alert -->
+		<div class="alert alert-warning text-center" role="alert">
+			⚠️ Data kosong, pindai tiket terlebih dahulu.
+		</div>
+	{% endif %}
 </div>
 
 <div class="container px-5 d-flex justify-content-center">
@@ -78,4 +129,5 @@
 		alt="image"
 	/>
 </div>
+
 {% endblock %}

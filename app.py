@@ -1,14 +1,17 @@
 from datetime import datetime, timedelta
 import sqlite3
-from flask import Flask, render_template, request, session, url_for, flash, redirect
+from flask import Flask, jsonify, render_template, request, session, url_for, flash, redirect
 from werkzeug.exceptions import abort
-from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 
+from core.config import Config
 from models.user_model import User
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your secret key'
-app.config['DEBUG'] = True
+app.config['SECRET_KEY'] = Config.SECRET_KEY
+app.config['FLASK_APP'] = Config.FLASK_APP
+app.config['FLASK_ENV'] = Config.FLASK_ENV
+app.config['DEBUG'] = Config.FLASK_DEBUG
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
@@ -184,7 +187,29 @@ def reports():
 @app.route('/manage_tickets', methods=('GET', 'POST'))
 @login_required
 def manage_tickets():
-    return render_template('manage_tickets.html')
+    conn = get_db_connection_row()
+    transaction=''
+    ticket = ''
+    if request.method == 'POST':
+        ticket = request.form.get('ticketInput')
+        if not ticket:
+            try:
+                data = request.get_json()
+                ticket = data.get('ticket')
+            except:
+                print('empty')
+         # Query the database to find a matching transaction
+        if ticket:
+            transaction = conn.execute(
+                "SELECT * FROM transactions WHERE id = ?", (ticket,)).fetchall()
+
+        # Handle if no transaction is found
+        if not transaction:
+            flash("Data transaksi tidak ditemukan.", "info")
+
+    return render_template('manage_tickets.html', transaction=transaction)
+
+
 # ----------------------------- END MANAGE TICKETS --------------------------------------
 
 
