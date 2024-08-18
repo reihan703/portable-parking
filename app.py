@@ -1,14 +1,18 @@
 from datetime import datetime, timedelta
 import sqlite3
-from flask import Flask, render_template, request, session, url_for, flash, redirect
+from flask import Flask, jsonify, render_template, request, session, url_for, flash, redirect
 from werkzeug.exceptions import abort
-from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 
+from core.config import Config
+from core.scan_ticket import ScanTicket
 from models.user_model import User
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your secret key'
-app.config['DEBUG'] = True
+app.config['SECRET_KEY'] = Config.SECRET_KEY
+app.config['FLASK_APP'] = Config.FLASK_APP
+app.config['FLASK_ENV'] = Config.FLASK_ENV
+app.config['DEBUG'] = Config.FLASK_DEBUG
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
@@ -185,6 +189,19 @@ def reports():
 @login_required
 def manage_tickets():
     return render_template('manage_tickets.html')
+
+
+@app.route('/scan_ticket', methods=('POST',))
+@login_required
+def scan_ticket():
+    try:
+        scan_ticket = ScanTicket(timeout=10)
+        scanned_ticket = scan_ticket.execute()
+        return jsonify({'scanned_ticket': scanned_ticket})
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'error': str(e)}), 500
+
 # ----------------------------- END MANAGE TICKETS --------------------------------------
 
 

@@ -1,23 +1,31 @@
 {% extends 'base.html' %} {% block content %}
-
 <form class="mb-5 px-4">
 	<div class="form-row row align-middle">
 		<div class="col-2 mr-2">
 			<input
 				type="text"
 				class="form-control mr-sm-2"
-				id="inlineFormInputName2"
-				placeholder="Jane Doe"
+				id="ticketInput"
+				name="ticketInput"
+				placeholder="Masukkan Kode Tiket"
 			/>
 		</div>
 		<div class="col-2 d-flex justify-content-between">
 			<button type="submit" class="btn btn-outline-primary w-50 mx-2">
 				Cari
 			</button>
-			<a class="btn btn-outline-secondary w-50 mx-2">Pindai</a>
+			<button
+				type="button"
+				class="btn btn-outline-secondary w-50 mx-2"
+				id="scanButton"
+			>
+				Pindai
+			</button>
 		</div>
 	</div>
 </form>
+
+<p id="scanResult" class="mt-2"></p>
 
 <div class="px-4">
 	<table class="table">
@@ -78,4 +86,41 @@
 		alt="image"
 	/>
 </div>
+
+<script>
+	document
+		.getElementById("scanButton")
+		.addEventListener("click", function (event) {
+			event.preventDefault();
+
+			fetch('{{ url_for("scan_ticket") }}', {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+			})
+				.then((response) => {
+					if (!response.ok) {
+						throw new Error(
+							"Network response was not ok " + response.statusText
+						);
+					}
+					return response.json();
+				})
+				.then((data) => {
+					if (data.scanned_ticket) {
+						document.getElementById("ticketInput").value =
+							data.scanned_ticket;
+						document.getElementById(
+							"scanResult"
+						).innerText = `QR Code Scanned: ${data.scanned_ticket}`;
+					} else {
+						console.error("No scanned ticket in response:", data);
+					}
+				})
+				.catch((error) => {
+					console.error("Error:", error);
+				});
+		});
+</script>
 {% endblock %}
