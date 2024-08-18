@@ -188,19 +188,24 @@ def reports():
 @app.route('/manage_tickets', methods=('GET', 'POST'))
 @login_required
 def manage_tickets():
+    if request.method == 'POST':
+        data = request.get_json()
+        ticket = data.get('ticket')
+        # Process the ticket data as needed
+        print(f"Received ticket: {ticket}")
+        # return jsonify({"status": "success", "ticket": ticket})
+        # Redirect to a different route if the ticket is successfully processed
+        return redirect(url_for('ticket_success', ticket=ticket))
     return render_template('manage_tickets.html')
 
 
-@app.route('/scan_ticket', methods=('POST',))
+@app.route('/ticket_success')
 @login_required
-def scan_ticket():
-    try:
-        scan_ticket = ScanTicket(timeout=10)
-        scanned_ticket = scan_ticket.execute()
-        return jsonify({'scanned_ticket': scanned_ticket})
-    except Exception as e:
-        print(f"Error: {e}")
-        return jsonify({'error': str(e)}), 500
+def ticket_success():
+    # Retrieve the ticket parameter from the query string
+    ticket = request.args.get('ticket')
+    return render_template('manage_tickets.html', ticket=ticket)
+
 
 # ----------------------------- END MANAGE TICKETS --------------------------------------
 
