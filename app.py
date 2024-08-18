@@ -217,6 +217,10 @@ def manage_tickets():
 @app.route('/manage_locations', methods=('GET', 'POST'))
 @login_required
 def manage_locations():
+    if not session['role'] == 'admin':
+        flash("Anda tidak memiliki hak akses", "info")
+        return redirect(url_for('reports'))
+
     return render_template('manage_locations.html')
 
 
