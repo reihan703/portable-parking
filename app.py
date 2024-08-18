@@ -5,7 +5,6 @@ from werkzeug.exceptions import abort
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 
 from core.config import Config
-from core.scan_ticket import ScanTicket
 from models.user_model import User
 
 app = Flask(__name__)
