@@ -12,14 +12,18 @@
 			/>
 		</div>
 		<div class="col-2 d-flex justify-content-between">
-			<button type="submit" id="searchTicket" class="btn btn-outline-primary w-50 mx-2">
+			<button
+				type="submit"
+				id="searchTicket"
+				class="btn btn-outline-primary w-50 mx-2"
+			>
 				Cari
 			</button>
 			<a
-				type="submit"
+				type="button"
 				class="btn btn-outline-secondary w-50 mx-2"
 				data-bs-toggle="modal"
-				data-bs-target="#exampleModal"
+				data-bs-target="#qr-reader"
 			>
 				Pindai
 			</a>
@@ -27,7 +31,8 @@
 	</div>
 </form>
 
-<div class="modal" id="exampleModal" tabindex="-1">
+<!-- SCAN QR MODAL -->
+<div class="modal" id="qr-reader" tabindex="-1">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -61,73 +66,168 @@
 
 <div class="px-4">
 	{% if transaction %}
-		<table class="table">
-			<thead class="thead-light text-center align-middle">
-				<tr>
-					<th scope="col">ID Tiket</th>
-					<th scope="col">Kode Kendaraan</th>
-					<th scope="col">Tanggal Terbuat</th>
-					<th scope="col">Tanggal Selesai</th>
-					<th scope="col">Status</th>
-					<th scope="col">Harga</th>
-					<th scope="col"></th>
-				</tr>
-			</thead>
-			<tbody class="text-center">
-				{% for tr in transaction %}
-					<tr>
-						<th scope="row">{{  tr['id']  }}</th>
-						<td>{{ tr['vehicle_code'] }}</td>
-						<td>{{ tr['created'] }}</td>
-						<td>Tanggal selesai</td>
-						<td>Keluar</td>
-						<td>2000</td>
-						<td>
-							<div class="btn-group">
-								<a
-									type="button"
-									class="btn btn-outline-warning dropdown-toggle"
-									data-bs-toggle="dropdown"
-									aria-expanded="false"
-								>
-									Sunting
-									<i class="fa-solid fa-pencil"></i>
-								</a>
-								<ul class="dropdown-menu">
-									<!-- Dropdown menu links -->
-									<li>
-										<a class="dropdown-item" href="#"
-											>Ubah Kode Kendaraan</a
-										>
-									</li>
-									<li>
-										<a class="dropdown-item" href="#"
-											>Tutup Transaksi</a
-										>
-									</li>
-								</ul>
-							</div>
-						</td>
-					</tr>
-				{% endfor %}
-			</tbody>
-		</table>
+	<table class="table">
+		<thead class="thead-light text-center align-middle">
+			<tr>
+				<th scope="col">ID Tiket</th>
+				<th scope="col">Kode Kendaraan</th>
+				<th scope="col">Tanggal Terbuat</th>
+				<th scope="col">Tanggal Selesai</th>
+				<th scope="col">Status</th>
+				<th scope="col">Harga</th>
+				<th scope="col"></th>
+			</tr>
+		</thead>
+		<tbody class="text-center">
+			<tr>
+				<th scope="row">{{ transaction['transaction_id'] }}</th>
+				<td>{{ transaction['vehicle_code'] }}</td>
+				<td>{{ transaction['created_at'] }}</td>
+				<td>{{ transaction['finished_at'] }}</td>
+				<td>{{ transaction['status'] }}</td>
+				<td>{{ price }}</td>
+				<td>
+					<div class="btn-group">
+						{% if not transaction["finished_at"] %}
+							<a
+								type="button"
+								class="btn btn-outline-warning dropdown-toggle"
+								data-bs-toggle="dropdown"
+								aria-expanded="false"
+							>
+								Sunting
+								<i class="fa-solid fa-pencil"></i>
+							</a>
+							<ul class="dropdown-menu">
+								<!-- Dropdown menu links -->
+								<li>
+									<a
+										type="button"
+										class="dropdown-item"
+										data-bs-toggle="modal"
+										data-bs-target="#edit_ticket"
+									>
+										Ubah Kode Kendaraan
+									</a>
+								</li>
+								<li>
+									<a
+										class="dropdown-item"
+										href="{{ url_for('finish_ticket', id=transaction['transaction_id']) }}"
+										onclick="return confirm('Apakah Anda yakin ingin menyelesaikan transaksi ini?')"
+										>Selesaikan Transaksi</a
+									>
+								</li>
+								<li>
+									<a
+										class="dropdown-item"
+										href="{{ url_for('delete_ticket', id=transaction['transaction_id']) }}"
+										onclick="return confirm('Apakah Anda yakin ingin menghapus transaksi ini?')"
+										>Hapus Transaksi</a
+									>
+								</li>
+							</ul>
+						{% else %}
+							<button
+								class="btn btn-outline-secondary dropdown-toggle"
+								data-bs-toggle="dropdown"
+								aria-expanded="false"
+								disabled
+							>
+								Selesai
+								<i class="fa-solid fa-pencil"></i>
+							</button>
+						{% endif %}
+					</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<div class="container px-5 d-flex justify-content-center">
+		<img
+			src="{{ transaction['image_path'] }}"
+			class="img-fluid"
+			width="75%"
+			height="75%"
+			alt="{{ transaction['image_path'] }}"
+		/>
+	</div>
 	{% else %}
-		 <!-- Bootstrap 5 warning alert -->
-		<div class="alert alert-warning text-center" role="alert">
-			⚠️ Data kosong, pindai tiket terlebih dahulu.
-		</div>
+	<!-- Bootstrap 5 warning alert -->
+	<div class="alert alert-warning text-center" role="alert">
+		⚠️ Data kosong, pindai tiket terlebih dahulu.
+	</div>
+	<div class="container px-5 d-flex justify-content-center">
+		<img
+			src="static/assets/failed_photo.jpg"
+			class="img-fluid"
+			width="75%"
+			height="75%"
+			alt="image"
+		/>
+	</div>
 	{% endif %}
-</div>
 
-<div class="container px-5 d-flex justify-content-center">
-	<img
-		src="static/assets/image.png"
-		class="img-fluid"
-		width="75%"
-		height="75%"
-		alt="image"
-	/>
+	<!-- EDIT KODE KENDARAAN MODAL -->
+	<div class="modal" id="edit_ticket" tabindex="-1">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Ubah Kode Kendaraan</h5>
+					<button
+						type="button"
+						class="btn-close"
+						data-bs-dismiss="modal"
+						aria-label="Close"
+					></button>
+				</div>
+				<div class="modal-body">
+					<div class="container d-flex justify-content-center mb-5">
+						<form
+							class="form"
+							method="POST"
+							action="{{ url_for('edit_ticket', id=transaction['transaction_id']) }}"
+						>
+							<select
+								class="form-select mr-sm-2 editVehicleCode"
+								id="editVehicleCode"
+								name="editVehicleCode"
+							>
+								<option
+									value="{{ transaction['vehicle_id'] }}"
+									selected
+									disabled
+								>
+									{{ transaction['vehicle_code'] }}
+								</option>
+								{% for vehicle in vehicles %}
+								<option value="{{ vehicle['id'] }}">
+									{{ vehicle['vehicle_code'] }}
+								</option>
+								{% endfor %}
+							</select>
+							<button
+								type="submit"
+								id="updateVehicleCode"
+								class="btn btn-outline-primary mx-2 my-4"
+							>
+								Ubah Kode Kendaraan
+							</button>
+						</form>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button
+						type="button"
+						class="btn btn-secondary"
+						data-bs-dismiss="modal"
+					>
+						Close
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 
 {% endblock %}
