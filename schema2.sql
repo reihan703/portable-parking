@@ -1,4 +1,3 @@
-DROP TABLE IF EXISTS parking_raspberry;
 DROP TABLE IF EXISTS parking_location;
 DROP TABLE IF EXISTS parking_transaction;
 DROP TABLE IF EXISTS parking_vehicle;
@@ -22,13 +21,6 @@ CREATE TABLE parking_admin (
     name TEXT NOT NULL,
     email TEXT NOT NULL,
     role TEXT NOT NULL
-);
-
-CREATE TABLE parking_raspberry (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    raspberry_name TEXT NOT NULL,
-    location_id INTEGER NOT NULL,
-    FOREIGN KEY (location_id) REFERENCES parking_location(id) ON DELETE CASCADE
 );
 
 CREATE TABLE parking_location (
@@ -57,14 +49,12 @@ CREATE TABLE parking_location_vehicle (
 
 CREATE TABLE parking_transaction (
     transaction_id TEXT PRIMARY KEY NOT NULL,
-    raspberry_id INTEGER NOT NULL,
     location_id INTEGER NOT NULL,
     image_path TEXT,
     vehicle_id INTEGER NOT NULL,
     status TEXT NOT NULL,
     created_at TEXT NOT NULL,
     finished_at TEXT,
-    FOREIGN KEY (raspberry_id) REFERENCES parking_raspberry(id) ON DELETE CASCADE,
     FOREIGN KEY (location_id) REFERENCES parking_location(id) ON DELETE CASCADE,
     FOREIGN KEY (vehicle_id) REFERENCES parking_vehicle(id) ON DELETE CASCADE
 );
