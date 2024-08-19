@@ -289,20 +289,23 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        conn = get_db_connection()
+        conn = get_db_connection_row()
         cur = conn.cursor()
-        cur.execute('SELECT * FROM users WHERE username = ? and password = ?',
-                    (username, password))
-        user = cur.fetchone()
+        user_login = cur.execute('SELECT * FROM parking_admin WHERE username = ? and user_pass = ?',
+                           (username, password)).fetchone()
+        if not user_login:
+            user_login = cur.execute('SELECT * FROM parking_user WHERE username = ? and user_pass = ?',
+                               (username, password)).fetchone()
         conn.commit()
         conn.close()
-        if user:
+        if user_login:
             # Get id
-            user_id = user[0]
-            user_role = user[4]
-            user = User(user_id)
-            session['id'] = user_id
-            session['role'] = user_role
+            # user_id = user[0]
+            # user_role = user[4]
+            user = User(user_login['id'])
+            session['id'] = user_login['id']
+            session['role'] = user_login['role']
+            session['name'] = user_login['name']
             login_user(user)
             return redirect(url_for('reports'))
         else:
