@@ -262,14 +262,44 @@ def edit_ticket(id):
     conn.execute(query, (vehicle_id, id))
     conn.commit()
     conn.close()
-    flash('Vehicle code updated successfully!', 'success')
+    flash('Kode kendaraan berhasil diubah!', 'success')
     return redirect(url_for('manage_tickets'))  # Redirect to a relevant page
 
 
 @app.route('/delete_ticket/<string:id>', methods=('GET', 'POST'))
 @login_required
 def delete_ticket(id):
-    pass
+    conn = get_db_connection()
+
+    query = '''
+        DELETE FROM parking_transaction
+        WHERE transaction_id = ?
+    '''
+    conn.execute(query,(id,))
+    conn.commit()
+    conn.close()
+    flash('ID transaksi {} berhasil DIHAPUS'.format(id), "success")
+    return redirect(url_for('manage_tickets'))
+
+
+@app.route('/finish_ticket/<string:id>', methods=('GET', 'POST'))
+@login_required
+def finish_ticket(id):
+    conn = get_db_connection()
+
+    # Get the current time
+    now = datetime.now()
+    formatted_time = now.strftime('%Y-%m-%d %H:%M')
+    query = '''
+        UPDATE parking_transaction
+        SET finished_at = ?
+        WHERE transaction_id = ?
+    '''
+    conn.execute(query, (formatted_time, id))
+    conn.commit()
+    conn.close()
+    flash('ID transaksi {} berhasil DISELESAIKAN'.format(id), "success")
+    return redirect(url_for('manage_tickets'))
 # ----------------------------- END MANAGE TICKETS --------------------------------------
 
 
