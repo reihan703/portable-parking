@@ -304,6 +304,18 @@ def finish_ticket(id):
 
 
 # ----------------------------- MANAGE LOCATIONS --------------------------------------
+def get_locations():
+    '''
+    Get all available location
+    '''
+    conn = get_db_connection_row()
+    query = '''
+    SELECT * FROM parking_location
+    '''
+    locations = conn.execute(query).fetchall()
+    conn.close()
+    return locations
+
 @app.route('/manage_locations', methods=('GET', 'POST'))
 @login_required
 def manage_locations():
@@ -311,12 +323,7 @@ def manage_locations():
     if not session['role'] == 'admin':
         flash("Anda tidak memiliki hak akses", "warning")
         return redirect(url_for('reports'))
-    conn = get_db_connection_row()
-    query = '''
-    SELECT * FROM locations 
-    '''
-    locations = conn.execute(query).fetchall()
-    conn.close()
+    locations = get_locations()
 
     return render_template('manage_locations.html', locations=locations)
 
@@ -324,7 +331,7 @@ def manage_locations():
 def get_location(location_id):
     conn = get_db_connection_row()
     query = '''
-    SELECT * FROM locations WHERE id = ?
+    SELECT * FROM parking_location WHERE id = ?
     '''
     location = conn.execute(query, (location_id,)).fetchone()
     conn.close()
@@ -336,7 +343,7 @@ def get_location(location_id):
 def get_owner(owner_id):
     conn = get_db_connection_row()
     query = '''
-    SELECT * FROM users WHERE id = ?
+    SELECT * FROM parking_user WHERE id = ?
     '''
     location = conn.execute(query, (owner_id,)).fetchone()
     conn.close()
@@ -348,7 +355,10 @@ def get_owner(owner_id):
 def get_vehicle(location_id):
     conn = get_db_connection_row()
     query = '''
-    SELECT * FROM vehicles WHERE location_id = ?
+    SELECT DISTINCT v.vehicle_code, v.id, v.vehicle_rate
+    FROM parking_vehicle v
+    JOIN parking_location_vehicle plv ON v.id = plv.vehicle_id
+    WHERE plv.location_id = ?
     '''
     vehicles = conn.execute(query, (location_id,)).fetchall()
     conn.close()
@@ -361,10 +371,44 @@ def get_vehicle(location_id):
 @login_required
 def edit_location(id):
     location = get_location(id)
-    owner = get_owner(location['location_owner_id'])
+    owner = get_owner(location['owner_id'])
     vehicles = get_vehicle(location['id'])
     return render_template('add_location.html', location=location, owner=owner, vehicles=vehicles)
 
+
+@app.route('/edit_location_vehicle_code/<int:id>/', methods=('GET', 'POST'))
+@login_required
+def edit_location_vehicle_code(id):
+    location_id = ''
+    if request.method == 'POST':
+        location_id = request.form['hiddenLocationId']
+        vehicle_code = request.form['editLocationVehicleCode']
+        vehicle_rate = request.form['editLocationVehicleCodePrice']
+        conn = get_db_connection()
+        query = '''
+            UPDATE parking_vehicle
+            SET vehicle_code = ?, vehicle_rate = ?
+            WHERE id = ?
+        '''
+        conn.execute(query, (vehicle_code, vehicle_rate, id,))
+        print('sini')
+        conn.commit()
+        conn.close()
+    return redirect(url_for('edit_location', id=location_id))
+
+@app.route('/delete_location_vehicle_code/<int:id>/', methods=('GET', 'POST'))
+@login_required
+def delete_location_vehicle_code(id):
+    conn = get_db_connection()
+    query = '''
+        DELETE FROM parking_vehicle
+        WHERE id = ?
+    '''
+    conn.execute(query, (id,))
+    conn.commit()
+    conn.close()
+    locations = get_locations()
+    return redirect(url_for('manage_locations', locations=locations))
 
 @app.route('/add_location', methods=('GET', 'POST'))
 @login_required

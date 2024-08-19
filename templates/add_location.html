@@ -29,71 +29,145 @@
 				<option value="Rosa"></option>
 			</datalist>
 		</div>
-		<table class="table table-stripped mt-3">
-			<thead class="thead-light text-center align-middle">
-				<tr>
-					<th scope="col">Kode Kendaraan</th>
-					<th scope="col">Harga (Rp.)/Jam</th>
-					<th scope="col"></th>
-				</tr>
-			</thead>
-			<tbody class="text-center align-middle">
-				{% for vehicle in vehicles %}
-					<tr>
-						<th scope="row">{{ vehicle['vehicle_code'] }}</th>
-						<td>{{ vehicle['price'] }}</td>
-						<td class="gap-2">
-							<a
-								type="button"
-								class="btn btn-outline-warning w-25"
-								aria-expanded="false"
-							>
-								Sunting
-								<i class="fa-solid fa-pencil"></i>
-							</a>
-							<a
-								type="button"
-								class="btn btn-outline-danger w-25"
-								aria-expanded="false"
-							>
-								Hapus
-								<i class="fa-regular fa-trash-can"></i>
-							</a>
-						</td>
-					</tr>
-				{% endfor %}
-				{% if not vehicles %}
-				<tr>
-					<td colspan="2">
-						<div class="alert alert-warning text-center" role="alert">
-							⚠️ Harga kosong, tambahkan kode kendaraan.
-						</div>
-					</td>
-				</tr>
-				{% endif %}
-			</tbody>
-			<tfoot>
-				<tr>
-					<td colspan="3" class="text-center">
-						<a
-							type="button"
-							class="btn btn-outline-primary w-25"
-							aria-expanded="false"
-						>
-							Tambah Kode Kendaraan
-							<i class="fa-solid fa-circle-plus"></i>
-						</a>
-					</td>
-				</tr>
-			</tfoot>
-		</table>
-		<div class="form-group align-middle text-center mt-5">
-			<button type="submit" class="btn btn-outline-success w-25 mb-3">
-				Simpan data
-				<i class="fa-regular fa-floppy-disk"></i>
-			</button>
-		</div>
 	</form>
+
+	<table class="table table-stripped mt-3">
+		<thead class="thead-light text-center align-middle">
+			<tr>
+				<th scope="col">Kode Kendaraan</th>
+				<th scope="col">Harga (Rp.)/Jam</th>
+				<th scope="col"></th>
+			</tr>
+		</thead>
+		<tbody class="text-center align-middle">
+			{% for vehicle in vehicles %}
+			<tr>
+				<th scope="row">{{ vehicle['vehicle_code'] }}</th>
+				<td>{{ vehicle['vehicle_rate'] }}</td>
+				<td class="gap-2">
+					<a
+						type="button"
+						class="btn btn-outline-warning w-25"
+						aria-expanded="false"
+						data-bs-toggle="modal"
+						data-bs-target="#edit_vehicle_code"
+					>
+						Sunting
+						<i class="fa-solid fa-pencil"></i>
+					</a>
+					<!-- EDIT KODE KENDARAAN MODAL -->
+					<div class="modal" id="edit_vehicle_code" tabindex="-1">
+						<div class="modal-dialog">
+							<div class="modal-content">
+								<div class="modal-header">
+									<h5 class="modal-title">
+										Ubah Kode Kendaraan / Harga
+									</h5>
+									<button
+										type="button"
+										class="btn-close"
+										data-bs-dismiss="modal"
+										aria-label="Close"
+									></button>
+								</div>
+								<div class="modal-body">
+									<div
+										class="container d-flex flex-column justify-content-center mb-5"
+									>
+										<form
+											class="form"
+											method="POST"
+											action="{{ url_for('edit_location_vehicle_code', id=vehicle['id']) }}"
+										>
+											<input
+												class="form-control mr-sm-2 mb-3"
+												id="editLocationVehicleCode"
+												name="editLocationVehicleCode"
+												type="text"
+												placeholder="Kode Kendaraan (MT1, MT2, dll)"
+											/>
+											<input
+												class="form-control mr-sm-2"
+												id="editLocationVehicleCodePrice"
+												name="editLocationVehicleCodePrice"
+												type="number"
+												placeholder="Tarif kendaraan (1000, 2000, dll)"
+											/>
+											<input
+												class="form-control mr-sm-2 "
+												id="hiddenLocationId"
+												name="hiddenLocationId"
+												type="hidden"
+												value="{{ location['id'] }}"
+											/>
+											<button
+												type="submit"
+												id="updateLocationVehicleCode"
+												class="btn btn-outline-primary mx-2 my-4"
+											>
+												Ubah Kode Kendaraan
+											</button>
+										</form>
+									</div>
+								</div>
+								<div class="modal-footer">
+									<button
+										type="button"
+										class="btn btn-secondary"
+										data-bs-dismiss="modal"
+									>
+										Close
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<a
+						type="button"
+						class="btn btn-outline-danger w-25"
+						aria-expanded="false"
+						href="{{ url_for('delete_location_vehicle_code', id=vehicle['id']) }}"
+						onclick="return confirm('Apakah Anda yakin ingin MENGHAPUS kode kendaraan ini?')"
+					>
+						Hapus
+						<i class="fa-regular fa-trash-can"></i>
+					</a>
+				</td>
+			</tr>
+			{% endfor %} {% if not vehicles %}
+			<tr>
+				<td colspan="2">
+					<div
+						class="alert alert-warning text-center"
+						role="alert"
+					>
+						⚠️ Harga kosong, tambahkan kode kendaraan.
+					</div>
+				</td>
+			</tr>
+			{% endif %}
+		</tbody>
+		<tfoot>
+			<tr>
+				<td colspan="3" class="text-center">
+					<a
+						type="button"
+						class="btn btn-outline-primary w-25"
+						aria-expanded="false"
+					>
+						Tambah Kode Kendaraan
+						<i class="fa-solid fa-circle-plus"></i>
+					</a>
+				</td>
+			</tr>
+		</tfoot>
+	</table>
+	<div class="form-group align-middle text-center mt-5">
+		<button type="submit" class="btn btn-outline-success w-25 mb-3">
+			Simpan data
+			<i class="fa-regular fa-floppy-disk"></i>
+		</button>
+	</div>
 </div>
 
 {% endblock %}

@@ -28,7 +28,7 @@ CREATE TABLE parking_raspberry (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     raspberry_name TEXT NOT NULL,
     location_id INTEGER NOT NULL,
-    FOREIGN KEY (location_id) REFERENCES parking_location(id)
+    FOREIGN KEY (location_id) REFERENCES parking_location(id) ON DELETE CASCADE
 );
 
 CREATE TABLE parking_location (
@@ -37,8 +37,8 @@ CREATE TABLE parking_location (
     owner_id INTEGER NOT NULL,
     location_name TEXT NOT NULL,
     location_key TEXT NOT NULL,
-    FOREIGN KEY (admin_id) REFERENCES parking_admin(id),
-    FOREIGN KEY (owner_id) REFERENCES parking_user(id)
+    FOREIGN KEY (admin_id) REFERENCES parking_admin(id) ON DELETE CASCADE,
+    FOREIGN KEY (owner_id) REFERENCES parking_user(id) ON DELETE CASCADE
 );
 
 CREATE TABLE parking_vehicle (
@@ -51,8 +51,8 @@ CREATE TABLE parking_vehicle (
 CREATE TABLE parking_location_vehicle (
     location_id INTEGER,
     vehicle_id INTEGER,
-    FOREIGN KEY (location_id) REFERENCES parking_location(id),
-    FOREIGN KEY (vehicle_id) REFERENCES parking_vehicle(id)
+    FOREIGN KEY (location_id) REFERENCES parking_location(id) ON DELETE CASCADE,
+    FOREIGN KEY (vehicle_id) REFERENCES parking_vehicle(id) ON DELETE CASCADE
 );
 
 CREATE TABLE parking_transaction (
@@ -64,7 +64,7 @@ CREATE TABLE parking_transaction (
     status TEXT NOT NULL,
     created_at TEXT NOT NULL,
     finished_at TEXT,
-    FOREIGN KEY (raspberry_id) REFERENCES parking_raspberry(id),
-    FOREIGN KEY (location_id) REFERENCES parking_location(id),
-    FOREIGN KEY (vehicle_id) REFERENCES parking_vehicle(id)
+    FOREIGN KEY (raspberry_id) REFERENCES parking_raspberry(id) ON DELETE CASCADE,
+    FOREIGN KEY (location_id) REFERENCES parking_location(id) ON DELETE CASCADE,
+    FOREIGN KEY (vehicle_id) REFERENCES parking_vehicle(id) ON DELETE CASCADE
 );
