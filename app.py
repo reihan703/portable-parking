@@ -355,7 +355,7 @@ def get_owner(owner_id):
 def get_vehicle(location_id):
     conn = get_db_connection_row()
     query = '''
-    SELECT DISTINCT v.vehicle_code, v.id, v.vehicle_rate
+    SELECT DISTINCT v.vehicle_code, v.id, v.vehicle_rate, v.vehicle_name
     FROM parking_vehicle v
     JOIN parking_location_vehicle plv ON v.id = plv.vehicle_id
     WHERE plv.location_id = ?
@@ -376,6 +376,45 @@ def edit_location(id):
     return render_template('add_location.html', location=location, owner=owner, vehicles=vehicles)
 
 
+@app.route('/add_location_vehicle_code/<int:id>/', methods=('GET', 'POST'))
+@login_required
+def add_location_vehicle_code(id):
+    location_id = ''
+    if request.method == 'POST':
+        location_id = request.form['hiddenLocationIdAdd']
+        vehicle_code = request.form['addLocationVehicleCode']
+        vehicle_name = request.form['addLocationVehicleName']
+        vehicle_rate = request.form['addLocationVehicleCodePrice']
+        conn = get_db_connection()
+
+        # Insert into the parking_vehicle table
+        query_to_parking_vehicle = '''
+            INSERT INTO parking_vehicle (vehicle_code, vehicle_name, vehicle_rate)
+            VALUES (?, ?, ?)
+        '''
+
+        # Execute the query and get the cursor
+        cursor = conn.cursor()
+        cursor.execute(query_to_parking_vehicle,
+                    (vehicle_code, vehicle_name, vehicle_rate))
+
+        # Get the ID of the newly inserted vehicle
+        new_vehicle_id = cursor.lastrowid
+
+        # Insert into the parking_location_vehicle table using the new vehicle_id
+        query_to_parking_location_vehicle = '''
+            INSERT INTO parking_location_vehicle (location_id, vehicle_id)
+            VALUES (?, ?)
+        '''
+        cursor.execute(query_to_parking_location_vehicle,
+                    (location_id, new_vehicle_id))
+
+        # Commit the transaction if everything is successful
+        conn.commit()
+        conn.close()
+    return redirect(url_for('edit_location', id=location_id))
+
+
 @app.route('/edit_location_vehicle_code/<int:id>/', methods=('GET', 'POST'))
 @login_required
 def edit_location_vehicle_code(id):
@@ -391,7 +430,6 @@ def edit_location_vehicle_code(id):
             WHERE id = ?
         '''
         conn.execute(query, (vehicle_code, vehicle_rate, id,))
-        print('sini')
         conn.commit()
         conn.close()
     return redirect(url_for('edit_location', id=location_id))

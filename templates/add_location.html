@@ -42,7 +42,7 @@
 		<tbody class="text-center align-middle">
 			{% for vehicle in vehicles %}
 			<tr>
-				<th scope="row">{{ vehicle['vehicle_code'] }}</th>
+				<th scope="row">{{vehicle['vehicle_name']}} ({{ vehicle['vehicle_code'] }})</th>
 				<td>{{ vehicle['vehicle_rate'] }}</td>
 				<td class="gap-2">
 					<a
@@ -94,7 +94,7 @@
 												placeholder="Tarif kendaraan (1000, 2000, dll)"
 											/>
 											<input
-												class="form-control mr-sm-2 "
+												class="form-control mr-sm-2"
 												id="hiddenLocationId"
 												name="hiddenLocationId"
 												type="hidden"
@@ -137,10 +137,7 @@
 			{% endfor %} {% if not vehicles %}
 			<tr>
 				<td colspan="2">
-					<div
-						class="alert alert-warning text-center"
-						role="alert"
-					>
+					<div class="alert alert-warning text-center" role="alert">
 						⚠️ Harga kosong, tambahkan kode kendaraan.
 					</div>
 				</td>
@@ -154,10 +151,86 @@
 						type="button"
 						class="btn btn-outline-primary w-25"
 						aria-expanded="false"
+						data-bs-toggle="modal"
+						data-bs-target="#add_vehicle_code"
 					>
 						Tambah Kode Kendaraan
 						<i class="fa-solid fa-circle-plus"></i>
 					</a>
+					<!-- TAMBAH KODE KENDARAAN MODAL -->
+					<div class="modal" id="add_vehicle_code" tabindex="-1">
+						<div class="modal-dialog">
+							<div class="modal-content">
+								<div class="modal-header">
+									<h5 class="modal-title">
+										Ubah Kode Kendaraan / Harga
+									</h5>
+									<button
+										type="button"
+										class="btn-close"
+										data-bs-dismiss="modal"
+										aria-label="Close"
+									></button>
+								</div>
+								<div class="modal-body">
+									<div
+										class="container d-flex flex-column justify-content-center mb-5"
+									>
+										<form
+											class="form"
+											method="POST"
+											action="{{ url_for('add_location_vehicle_code', id=location['id']) }}"
+										>
+											<input
+												class="form-control mr-sm-2 mb-3"
+												id="addLocationVehicleCode"
+												name="addLocationVehicleCode"
+												type="text"
+												placeholder="Kode Kendaraan (MT1, MT2, dll)"
+											/>
+											<input
+												class="form-control mr-sm-2 mb-3"
+												id="addLocationVehicleName"
+												name="addLocationVehicleName"
+												type="text"
+												placeholder="Nama Kendaraan (Motor Kecil, Motor Besar, dll)"
+											/>
+											<input
+												class="form-control mr-sm-2"
+												id="addLocationVehicleCodePrice"
+												name="addLocationVehicleCodePrice"
+												type="number"
+												placeholder="Tarif kendaraan (1000, 2000, dll)"
+											/>
+											<input
+												class="form-control mr-sm-2"
+												id="hiddenLocationIdAdd"
+												name="hiddenLocationIdAdd"
+												type="hidden"
+												value="{{ location['id'] }}"
+											/>
+											<button
+												type="submit"
+												id="addLocationVehicleCode"
+												class="btn btn-outline-primary mx-2 my-4"
+											>
+												Tambah Kode Kendaraan
+											</button>
+										</form>
+									</div>
+								</div>
+								<div class="modal-footer">
+									<button
+										type="button"
+										class="btn btn-secondary"
+										data-bs-dismiss="modal"
+									>
+										Close
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
 				</td>
 			</tr>
 		</tfoot>
