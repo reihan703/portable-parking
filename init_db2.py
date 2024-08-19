@@ -71,16 +71,16 @@ cur.execute("INSERT INTO parking_location_vehicle (location_id, vehicle_id) VALU
 
 # Create dummy transaction
 cur.execute("INSERT INTO parking_transaction (transaction_id, raspberry_id, location_id, image_path, vehicle_id, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            ('asd', 1, 1, 'sini', 1, 'parkir', '2024-08-13 21:00')
+            ('asd', 1, 1, 'sini', 1, 'Parkir', '2024-08-13 21:00')
             )
 cur.execute("INSERT INTO parking_transaction (transaction_id, raspberry_id, location_id, image_path, vehicle_id, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            ('asdd', 1, 1, 'sini1', 2, 'parkir', '2024-08-11 21:00')
+            ('asdd', 1, 1, 'sini1', 2, 'Keluar', '2024-08-11 21:00')
             )
 cur.execute("INSERT INTO parking_transaction (transaction_id, raspberry_id, location_id, image_path, vehicle_id, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            ('asds', 2, 2, 'sini2', 3, 'parkir', '2024-08-19 21:00')
+            ('asds', 2, 2, 'sini2', 3, 'Parkir', '2024-08-19 21:00')
             )
 cur.execute("INSERT INTO parking_transaction (transaction_id, raspberry_id, location_id, image_path, vehicle_id, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            ('asdss', 2, 2, 'sini3', 2, 'parkir', '2024-08-17 21:00')
+            ('asdss', 2, 2, 'sini3', 2, 'Keluar', '2024-08-17 21:00')
             )
 
 connection.commit()

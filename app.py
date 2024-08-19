@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import math
 import sqlite3
 from flask import Flask, jsonify, render_template, request, session, url_for, flash, redirect
 from werkzeug.exceptions import abort
@@ -192,11 +193,22 @@ def reports():
 
 
 # ----------------------------- MANAGE TICKETS --------------------------------------
+def count_price(date_then: str, price: int):
+    converted_date = datetime.strptime(date_then, "%Y-%m-%d %H:%M")
+    date_now = datetime.now()
+
+    # Calculate the difference in hours
+    hours_difference = (date_now - converted_date).total_seconds() / 3600
+    hours_difference = math.ceil(hours_difference)
+    total_price = hours_difference * price
+    return total_price
+
 @app.route('/manage_tickets', methods=('GET', 'POST'))
 @login_required
 def manage_tickets():
     conn = get_db_connection_row()
     transaction = ''
+    price=0
     ticket = ''
     if request.method == 'POST':
         ticket = request.form.get('ticketInput')
@@ -208,14 +220,21 @@ def manage_tickets():
                 print('empty')
          # Query the database to find a matching transaction
         if ticket:
+            query = '''
+                SELECT t.*, v.vehicle_code, v.vehicle_rate 
+                FROM parking_transaction t
+                JOIN parking_vehicle v ON t.vehicle_id = v.id
+                WHERE t.transaction_id = ?
+            '''
             transaction = conn.execute(
-                "SELECT * FROM transactions WHERE id = ?", (ticket,)).fetchall()
+                query, (ticket,)).fetchone()
+            price = count_price(date_then=transaction['created_at'], price=transaction['vehicle_rate']) 
 
         # Handle if no transaction is found
         if not transaction:
             flash("Data transaksi tidak ditemukan.", "info")
 
-    return render_template('manage_tickets.html', transaction=transaction)
+    return render_template('manage_tickets.html', transaction=transaction, price=price)
 
 
 # ----------------------------- END MANAGE TICKETS --------------------------------------

@@ -74,60 +74,67 @@
 				</tr>
 			</thead>
 			<tbody class="text-center">
-				{% for tr in transaction %}
-					<tr>
-						<th scope="row">{{  tr['id']  }}</th>
-						<td>{{ tr['vehicle_code'] }}</td>
-						<td>{{ tr['created'] }}</td>
-						<td>Tanggal selesai</td>
-						<td>Keluar</td>
-						<td>2000</td>
-						<td>
-							<div class="btn-group">
-								<a
-									type="button"
-									class="btn btn-outline-warning dropdown-toggle"
-									data-bs-toggle="dropdown"
-									aria-expanded="false"
-								>
-									Sunting
-									<i class="fa-solid fa-pencil"></i>
-								</a>
-								<ul class="dropdown-menu">
-									<!-- Dropdown menu links -->
-									<li>
-										<a class="dropdown-item" href="#"
-											>Ubah Kode Kendaraan</a
-										>
-									</li>
-									<li>
-										<a class="dropdown-item" href="#"
-											>Tutup Transaksi</a
-										>
-									</li>
-								</ul>
-							</div>
-						</td>
-					</tr>
-				{% endfor %}
+				<tr>
+					<th scope="row">{{ transaction['transaction_id'] }}</th>
+					<td>{{ transaction['vehicle_code'] }}</td>
+					<td>{{ transaction['created_at'] }}</td>
+					<td>{{ transaction['finished_at'] }}</td>
+					<td>{{ transaction['status'] }}</td>
+					<td>{{ price }}</td>
+					<td>
+						<div class="btn-group">
+							<a
+								type="button"
+								class="btn btn-outline-warning dropdown-toggle"
+								data-bs-toggle="dropdown"
+								aria-expanded="false"
+							>
+								Sunting
+								<i class="fa-solid fa-pencil"></i>
+							</a>
+							<ul class="dropdown-menu">
+								<!-- Dropdown menu links -->
+								<li>
+									<a class="dropdown-item" href="#"
+										>Ubah Kode Kendaraan</a
+									>
+								</li>
+								<li>
+									<a class="dropdown-item" href="#"
+										>Tutup Transaksi</a
+									>
+								</li>
+							</ul>
+						</div>
+					</td>
+				</tr>
 			</tbody>
 		</table>
+		<div class="container px-5 d-flex justify-content-center">
+			<img
+				src="{{ transaction['image_path'] }}"
+				class="img-fluid"
+				width="75%"
+				height="75%"
+				alt="{{ transaction['image_path'] }}"
+			/>
+		</div>
 	{% else %}
 		 <!-- Bootstrap 5 warning alert -->
 		<div class="alert alert-warning text-center" role="alert">
 			⚠️ Data kosong, pindai tiket terlebih dahulu.
 		</div>
+		<div class="container px-5 d-flex justify-content-center">
+			<img
+				src="static/assets/failed_photo.jpg"
+				class="img-fluid"
+				width="75%"
+				height="75%"
+				alt="image"
+			/>
+		</div>
 	{% endif %}
 </div>
 
-<div class="container px-5 d-flex justify-content-center">
-	<img
-		src="static/assets/image.png"
-		class="img-fluid"
-		width="75%"
-		height="75%"
-		alt="image"
-	/>
-</div>
 
 {% endblock %}
