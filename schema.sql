@@ -2,6 +2,7 @@ DROP TABLE IF EXISTS posts;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS transactions;
 DROP TABLE IF EXISTS locations;
+DROP TABLE IF EXISTS vehicles;
 
 CREATE TABLE posts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -30,6 +31,15 @@ CREATE TABLE transactions (
     vehicle_code TEXT NOT NULL,
     price INTEGER NOT NULL,
     created TEXT NOT NULL,
+    location_id INTEGER,
+    FOREIGN KEY (location_id) REFERENCES locations(id) 
+);
+
+CREATE TABLE vehicles (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    vehicle_code TEXT NOT NULL,
+    vehicle_name TEXT NOT NULL,
+    price INTEGER NOT NULL,
     location_id INTEGER,
     FOREIGN KEY (location_id) REFERENCES locations(id) 
 );

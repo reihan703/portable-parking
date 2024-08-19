@@ -1,69 +1,53 @@
 {% extends 'base.html' %} {% block content %}
 
 <div class="container px-4">
-	<table class="table">
-		<thead class="thead-light text-center align-middle">
-			<tr>
-				<th scope="col" colspan="2">Lokasi</th>
-			</tr>
-		</thead>
-		<tbody class="text-center">
-			<tr>
-				<td class="d-flex justify-content-between px-5">
-					<p class="mb-0">Site A</p>
-					<a
-						type="button"
-						class="btn btn-outline-warning w-25"
-						aria-expanded="false"
-					>
-						Sunting
-						<i class="fa-solid fa-pencil"></i>
-					</a>
-				</td>
-			</tr>
-			<tr>
-				<td class="d-flex justify-content-between px-5">
-					<p class="mb-0">Site A</p>
-					<a
-						type="button"
-						class="btn btn-outline-warning w-25"
-						aria-expanded="false"
-					>
-						Sunting
-						<i class="fa-solid fa-pencil"></i>
-					</a>
-				</td>
-			</tr>
-			<tr>
-				<td class="d-flex justify-content-between px-5">
-					<p class="mb-0">Site A</p>
-					<a
-						type="button"
-						class="btn btn-outline-warning w-25"
-						aria-expanded="false"
-					>
-						Sunting
-						<i class="fa-solid fa-pencil"></i>
-					</a>
-				</td>
-			</tr>
-		</tbody>
-		<tfoot>
-			<tr>
-				<td colspan="2" class="text-end px-5">
-					<a
-						type="button"
-						class="btn btn-outline-success w-25"
-						aria-expanded="false"
-                        href="{{url_for('add_location')}}"
-					>
-						Tambah Lokasi
-						<i class="fa-solid fa-circle-plus"></i>
-					</a>
-				</td>
-			</tr>
-		</tfoot>
-	</table>
+	{% if locations %}
+		<table class="table">
+			<thead class="thead-light text-center align-middle">
+				<tr>
+					<th scope="col" colspan="2">Lokasi</th>
+				</tr>
+			</thead>
+			<tbody class="text-center">
+				{% for location in locations %}
+					<tr>
+						<td class="d-flex justify-content-between px-5">
+							<p class="mb-0 fw-bold">{{ location['location_name'] }}</p>
+							<a
+								type="button"
+								class="btn btn-outline-warning w-25"
+								aria-expanded="false"
+								href="{{ url_for('edit_location', id=location['id']) }}"
+							>
+								Sunting
+								<i class="fa-solid fa-pencil"></i>
+							</a>
+						</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+			<tfoot>
+				<tr>
+					<td colspan="2" class="text-end px-5">
+						<a
+							type="button"
+							class="btn btn-outline-success w-25"
+							aria-expanded="false"
+							href="{{url_for('add_location')}}"
+						>
+							Tambah Lokasi
+							<i class="fa-solid fa-circle-plus"></i>
+						</a>
+					</td>
+				</tr>
+			</tfoot>
+		</table>
+		{% else %}
+		 <!-- Bootstrap 5 warning alert -->
+		<div class="alert alert-warning text-center" role="alert">
+			⚠️ Data kosong, tambahkan lokasi.
+		</div>
+	{% endif %}
 </div>
 
 {% endblock %}

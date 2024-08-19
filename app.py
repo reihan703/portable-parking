@@ -188,7 +188,7 @@ def reports():
 @login_required
 def manage_tickets():
     conn = get_db_connection_row()
-    transaction=''
+    transaction = ''
     ticket = ''
     if request.method == 'POST':
         ticket = request.form.get('ticketInput')
@@ -217,7 +217,63 @@ def manage_tickets():
 @app.route('/manage_locations', methods=('GET', 'POST'))
 @login_required
 def manage_locations():
-    return render_template('manage_locations.html')
+    locations = []
+    if not session['role'] == 'admin':
+        flash("Anda tidak memiliki hak akses", "info")
+        return redirect(url_for('reports'))
+    conn = get_db_connection_row()
+    query = '''
+    SELECT * FROM locations 
+    '''
+    locations = conn.execute(query).fetchall()
+    conn.close()
+
+    return render_template('manage_locations.html', locations=locations)
+
+
+def get_location(location_id):
+    conn = get_db_connection_row()
+    query = '''
+    SELECT * FROM locations WHERE id = ?
+    '''
+    location = conn.execute(query, (location_id,)).fetchone()
+    conn.close()
+    if location is None:
+        abort(404)
+    return location
+
+
+def get_owner(owner_id):
+    conn = get_db_connection_row()
+    query = '''
+    SELECT * FROM users WHERE id = ?
+    '''
+    location = conn.execute(query, (owner_id,)).fetchone()
+    conn.close()
+    if location is None:
+        abort(404)
+    return location
+
+
+def get_vehicle(location_id):
+    conn = get_db_connection_row()
+    query = '''
+    SELECT * FROM vehicles WHERE location_id = ?
+    '''
+    vehicles = conn.execute(query, (location_id,)).fetchall()
+    conn.close()
+    if vehicles is None:
+        abort(404)
+    return vehicles
+
+
+@app.route('/<int:id>/edit_location', methods=('GET', 'POST'))
+@login_required
+def edit_location(id):
+    location = get_location(id)
+    owner = get_owner(location['location_owner_id'])
+    vehicles = get_vehicle(location['id'])
+    return render_template('add_location.html', location=location, owner=owner, vehicles=vehicles)
 
 
 @app.route('/add_location', methods=('GET', 'POST'))

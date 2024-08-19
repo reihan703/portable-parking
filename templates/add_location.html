@@ -3,21 +3,23 @@
 <div class="container">
 	<form action="">
 		<div class="form-group w-25">
-			<label for="exampleFormControlInput1">Nama Lokasi</label>
+			<label for="locationName">Nama Lokasi</label>
 			<input
 				type="text"
 				class="form-control mt-2"
-				id="exampleFormControlInput1"
+				id="locationName"
 				placeholder="Nama lokasi baru..."
+				value="{{ location['location_name'] if location else '' }}"
 			/>
 		</div>
 		<div class="form-group mt-3 w-25">
-			<label for="exampleDataList" class="form-label">Nama Pemilik</label>
+			<label for="ownerName" class="form-label">Nama Pemilik</label>
 			<input
 				class="form-control"
 				list="datalistOptions"
-				id="exampleDataList"
+				id="ownerName"
 				placeholder="Ketik untuk cari..."
+				value="{{ owner['username'] if owner else '' }}"
 			/>
 			<datalist id="datalistOptions">
 				<option value="Budi"></option>
@@ -36,56 +38,45 @@
 				</tr>
 			</thead>
 			<tbody class="text-center align-middle">
+				{% for vehicle in vehicles %}
+					<tr>
+						<th scope="row">{{ vehicle['vehicle_code'] }}</th>
+						<td>{{ vehicle['price'] }}</td>
+						<td class="gap-2">
+							<a
+								type="button"
+								class="btn btn-outline-warning w-25"
+								aria-expanded="false"
+							>
+								Sunting
+								<i class="fa-solid fa-pencil"></i>
+							</a>
+							<a
+								type="button"
+								class="btn btn-outline-danger w-25"
+								aria-expanded="false"
+							>
+								Hapus
+								<i class="fa-regular fa-trash-can"></i>
+							</a>
+						</td>
+					</tr>
+				{% endfor %}
+				{% if not vehicles %}
 				<tr>
-					<th scope="row">MT1</th>
-					<td>2000</td>
-					<td class="gap-2">
-						<a
-							type="button"
-							class="btn btn-outline-warning w-25"
-							aria-expanded="false"
-						>
-							Sunting
-							<i class="fa-solid fa-pencil"></i>
-						</a>
-						<a
-							type="button"
-							class="btn btn-outline-danger w-25"
-							aria-expanded="false"
-						>
-							Hapus
-							<i class="fa-regular fa-trash-can"></i>
-						</a>
+					<td colspan="2">
+						<div class="alert alert-warning text-center" role="alert">
+							⚠️ Harga kosong, tambahkan kode kendaraan.
+						</div>
 					</td>
 				</tr>
-				<tr>
-					<th scope="row">MT2</th>
-					<td>3000</td>
-					<td class="gap-2">
-						<a
-							type="button"
-							class="btn btn-outline-warning w-25"
-							aria-expanded="false"
-						>
-							Sunting
-							<i class="fa-solid fa-pencil"></i>
-						</a>
-						<a
-							type="button"
-							class="btn btn-outline-danger w-25"
-							aria-expanded="false"
-						>
-							Hapus
-							<i class="fa-regular fa-trash-can"></i>
-						</a>
-					</td>
-				</tr>
+				{% endif %}
 			</tbody>
 			<tfoot>
 				<tr>
 					<td colspan="3" class="text-center">
 						<a
-                            type="button"
+							type="button"
 							class="btn btn-outline-primary w-25"
 							aria-expanded="false"
 						>
@@ -99,7 +90,7 @@
 		<div class="form-group align-middle text-center mt-5">
 			<button type="submit" class="btn btn-outline-success w-25 mb-3">
 				Simpan data
-                <i class="fa-regular fa-floppy-disk"></i>
+				<i class="fa-regular fa-floppy-disk"></i>
 			</button>
 		</div>
 	</form>
