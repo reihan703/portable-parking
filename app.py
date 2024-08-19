@@ -230,6 +230,34 @@ def manage_locations():
 
     return render_template('manage_locations.html', locations=locations)
 
+def get_location(location_id):
+    conn = get_db_connection_row()
+    query = '''
+    SELECT * FROM locations WHERE id = ?
+    '''
+    location = conn.execute(query,(location_id,)).fetchone()
+    conn.close()
+    if location is None:
+        abort(404)
+    return location
+
+def get_owner(owner_id):
+    conn = get_db_connection_row()
+    query = '''
+    SELECT * FROM users WHERE id = ?
+    '''
+    location = conn.execute(query,(owner_id,)).fetchone()
+    conn.close()
+    if location is None:
+        abort(404)
+    return location
+
+@app.route('/<int:id>/edit_location', methods=('GET', 'POST'))
+@login_required
+def edit_location(id):
+    location = get_location(id)
+    owner = get_owner(location['id'])
+    return render_template('add_location.html', location=location, owner=owner)
 
 @app.route('/add_location', methods=('GET', 'POST'))
 @login_required

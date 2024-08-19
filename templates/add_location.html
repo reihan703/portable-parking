@@ -3,21 +3,23 @@
 <div class="container">
 	<form action="">
 		<div class="form-group w-25">
-			<label for="exampleFormControlInput1">Nama Lokasi</label>
+			<label for="locationName">Nama Lokasi</label>
 			<input
 				type="text"
 				class="form-control mt-2"
-				id="exampleFormControlInput1"
+				id="locationName"
 				placeholder="Nama lokasi baru..."
+				value="{{ location['location_name'] if location else '' }}"
 			/>
 		</div>
 		<div class="form-group mt-3 w-25">
-			<label for="exampleDataList" class="form-label">Nama Pemilik</label>
+			<label for="ownerName" class="form-label">Nama Pemilik</label>
 			<input
 				class="form-control"
 				list="datalistOptions"
-				id="exampleDataList"
+				id="ownerName"
 				placeholder="Ketik untuk cari..."
+				value="{{ owner['username'] if owner else '' }}"
 			/>
 			<datalist id="datalistOptions">
 				<option value="Budi"></option>
