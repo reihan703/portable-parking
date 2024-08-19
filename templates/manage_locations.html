@@ -2,51 +2,118 @@
 
 <div class="container px-4">
 	{% if locations %}
-		<table class="table">
-			<thead class="thead-light text-center align-middle">
-				<tr>
-					<th scope="col" colspan="2">Lokasi</th>
-				</tr>
-			</thead>
-			<tbody class="text-center">
-				{% for location in locations %}
-					<tr>
-						<td class="d-flex justify-content-between px-5">
-							<p class="mb-0 fw-bold">{{ location['location_name'] }}</p>
-							<a
-								type="button"
-								class="btn btn-outline-warning w-25"
-								aria-expanded="false"
-								href="{{ url_for('edit_location', id=location['id']) }}"
-							>
-								Sunting
-								<i class="fa-solid fa-pencil"></i>
-							</a>
-						</td>
-					</tr>
-				{% endfor %}
-			</tbody>
-			<tfoot>
-				<tr>
-					<td colspan="2" class="text-end px-5">
-						<a
-							type="button"
-							class="btn btn-outline-success w-25"
-							aria-expanded="false"
-							href="{{url_for('add_location')}}"
-						>
-							Tambah Lokasi
-							<i class="fa-solid fa-circle-plus"></i>
-						</a>
-					</td>
-				</tr>
-			</tfoot>
-		</table>
-		{% else %}
-		 <!-- Bootstrap 5 warning alert -->
-		<div class="alert alert-warning text-center" role="alert">
-			⚠️ Data kosong, tambahkan lokasi.
-		</div>
+	<table class="table">
+		<thead class="thead-light text-center align-middle">
+			<tr>
+				<th scope="col" colspan="2">Lokasi</th>
+			</tr>
+		</thead>
+		<tbody class="text-center">
+			{% for location in locations %}
+			<tr>
+				<td class="d-flex justify-content-between px-5">
+					<p class="mb-0 fw-bold">{{ location['location_name'] }}</p>
+					<a
+						type="button"
+						class="btn btn-outline-warning w-25"
+						aria-expanded="false"
+						href="{{ url_for('edit_location', id=location['id']) }}"
+					>
+						Sunting
+						<i class="fa-solid fa-pencil"></i>
+					</a>
+				</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+		<tfoot>
+			<tr>
+				<td colspan="2" class="text-end px-5">
+					<a
+						type="button"
+						class="btn btn-outline-success w-25"
+						aria-expanded="false"
+						data-bs-toggle="modal"
+						data-bs-target="#add_new_location"
+					>
+						Tambah Lokasi
+						<i class="fa-solid fa-circle-plus"></i>
+					</a>
+					<!-- TAMBAH KODE KENDARAAN MODAL -->
+					<div class="modal" id="add_new_location" tabindex="-1">
+						<div class="modal-dialog">
+							<div class="modal-content">
+								<div class="modal-header">
+									<h5 class="modal-title">
+										Tambah Lokasi Baru
+									</h5>
+									<button
+										type="button"
+										class="btn-close"
+										data-bs-dismiss="modal"
+										aria-label="Close"
+									></button>
+								</div>
+								<div class="modal-body">
+									<div
+										class="container d-flex flex-column justify-content-center mb-5"
+									>
+										<form
+											class="form"
+											method="POST"
+											action="{{ url_for('add_location') }}"
+										>
+											<input
+												class="form-control mr-sm-2 mb-3"
+												id="addNewLocationName"
+												name="addNewLocationName"
+												type="text"
+												placeholder="Nama Lokasi Baru..."
+											/>
+											<select
+												class="form-select"
+												aria-label="Default select example"
+												id="newOwnerName"
+												name="newOwnerName"
+											>
+												<option value="" selected disabled>
+													Pilih nama pemilik
+												</option>
+												{% for owner in owners %}
+													<option value="{{ owner['id'] }}">{{ owner['name'] }}</option>
+												{% endfor %}
+											</select>
+											<button
+												type="submit"
+												id="addLocationVehicleCode"
+												class="btn btn-outline-primary mx-2 my-4"
+											>
+												Tambah Lokasi Baru
+											</button>
+										</form>
+									</div>
+								</div>
+								<div class="modal-footer">
+									<button
+										type="button"
+										class="btn btn-secondary"
+										data-bs-dismiss="modal"
+									>
+										Close
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</td>
+			</tr>
+		</tfoot>
+	</table>
+	{% else %}
+	<!-- Bootstrap 5 warning alert -->
+	<div class="alert alert-warning text-center" role="alert">
+		⚠️ Data kosong, tambahkan lokasi.
+	</div>
 	{% endif %}
 </div>
 

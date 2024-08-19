@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta
 import math
+import secrets
 import sqlite3
+import string
 from flask import Flask, jsonify, render_template, request, session, url_for, flash, redirect
 from werkzeug.exceptions import abort
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
@@ -22,6 +24,13 @@ login_manager.login_view = 'login'
 def load_user(user_id):
     return User(user_id)
 
+
+def generate_random_key(length=16):
+    # Define the characters to use in the key
+    characters = string.ascii_letters + string.digits
+    # Generate a secure random string
+    random_key = ''.join(secrets.choice(characters) for _ in range(length))
+    return random_key
 
 def get_db_connection_row():
     conn = sqlite3.connect('database.db')
@@ -316,6 +325,20 @@ def get_locations():
     conn.close()
     return locations
 
+def get_owners():
+    '''
+    Get all available owner
+    '''
+    conn = get_db_connection_row()
+    query = '''
+    SELECT * 
+    FROM parking_user
+    WHERE role = ?
+    '''
+    owners = conn.execute(query, ('owner',)).fetchall()
+    conn.close()
+    return owners
+
 @app.route('/manage_locations', methods=('GET', 'POST'))
 @login_required
 def manage_locations():
@@ -324,8 +347,9 @@ def manage_locations():
         flash("Anda tidak memiliki hak akses", "warning")
         return redirect(url_for('reports'))
     locations = get_locations()
+    owners = get_owners()
 
-    return render_template('manage_locations.html', locations=locations)
+    return render_template('manage_locations.html', locations=locations, owners=owners)
 
 
 def get_location(location_id):
@@ -370,10 +394,28 @@ def get_vehicle(location_id):
 @app.route('/edit_location/<int:id>/', methods=('GET', 'POST'))
 @login_required
 def edit_location(id):
+    if request.method == "POST":
+        location_name = request.form.get('locationName')
+        owner_id = request.form.get('ownerId')
+        print(location_name, owner_id)
+        if not location_name or not owner_id:
+            flash('Gagal memperbarui data lokasi. Isi semua kolom!', "warning")
+        else:
+            conn = get_db_connection()
+            query = '''
+                UPDATE parking_location
+                SET location_name = ?, owner_id = ?
+                WHERE id = ?
+            '''
+            conn.execute(query, (location_name, owner_id, id,))
+            conn.commit()
+            conn.close()
+            flash('Lokasi berhasil diperbarui.', "success")
     location = get_location(id)
     owner = get_owner(location['owner_id'])
+    owners = get_owners()
     vehicles = get_vehicle(location['id'])
-    return render_template('add_location.html', location=location, owner=owner, vehicles=vehicles)
+    return render_template('add_location.html', location=location, owner=owner, owners=owners, vehicles=vehicles)
 
 
 @app.route('/add_location_vehicle_code/<int:id>/', methods=('GET', 'POST'))
@@ -446,12 +488,34 @@ def delete_location_vehicle_code(id):
     conn.commit()
     conn.close()
     locations = get_locations()
-    return redirect(url_for('manage_locations', locations=locations))
+    owners = get_owners()
+    return redirect(url_for('manage_locations', locations=locations, owners=owners))
 
-@app.route('/add_location', methods=('GET', 'POST'))
+@app.route('/add_location', methods=('POST',))
 @login_required
 def add_location():
-    return render_template('add_location.html')
+    if request.method == "POST":
+        conn = get_db_connection()
+        owner_id = request.form.get('newOwnerName')
+        location_name = request.form.get('addNewLocationName')
+        admin_id = session['id']
+        location_key = generate_random_key(16)
+        if not owner_id or not location_name:
+            flash("Gagal membuat lokasi baru. Isi semua kolom yang tersedia!", "warning")
+        else:
+            query = '''
+                INSERT INTO parking_location (admin_id, owner_id, location_name, location_key)
+                VALUES (?, ?, ?, ?)
+            '''
+
+            conn.execute(query,(admin_id, owner_id, location_name, location_key))
+            conn.commit()
+            conn.close()
+
+        locations = get_locations()
+        owners = get_owners()
+    
+    return redirect(url_for('manage_locations', locations=locations, owners=owners))
 # ----------------------------- END MANAGE LOCATIONS --------------------------------------
 
 

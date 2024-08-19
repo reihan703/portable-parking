@@ -1,33 +1,37 @@
 {% extends 'base.html' %} {% block content %}
 
 <div class="container">
-	<form action="">
+	<form action="{{ url_for('edit_location', id=location['id']) }}" method="POST">
 		<div class="form-group w-25">
 			<label for="locationName">Nama Lokasi</label>
 			<input
 				type="text"
 				class="form-control mt-2"
 				id="locationName"
+				name="locationName"
 				placeholder="Nama lokasi baru..."
 				value="{{ location['location_name'] if location else '' }}"
 			/>
 		</div>
 		<div class="form-group mt-3 w-25">
 			<label for="ownerName" class="form-label">Nama Pemilik</label>
-			<input
-				class="form-control"
-				list="datalistOptions"
-				id="ownerName"
-				placeholder="Ketik untuk cari..."
-				value="{{ owner['username'] if owner else '' }}"
-			/>
-			<datalist id="datalistOptions">
-				<option value="Budi"></option>
-				<option value="Rahman"></option>
-				<option value="Vicky"></option>
-				<option value="Haikal"></option>
-				<option value="Rosa"></option>
-			</datalist>
+			<select
+				class="form-select"
+				aria-label="Default select example"
+				id="ownerId"
+				name="ownerId"
+			>
+				<option value="{{ owner['id'] }}" selected disabled>{{ owner['name'] }}</option>
+				{% for owner in owners %}
+					<option value="{{ owner['id'] }}">{{ owner['name'] }}</option>
+				{% endfor %}
+			</select>
+		</div>
+		<div class="form-group align-middle text-levt mt-5">
+			<button type="submit" class="btn btn-outline-success w-25 mb-3">
+				Simpan data
+				<i class="fa-regular fa-floppy-disk"></i>
+			</button>
 		</div>
 	</form>
 
@@ -42,7 +46,9 @@
 		<tbody class="text-center align-middle">
 			{% for vehicle in vehicles %}
 			<tr>
-				<th scope="row">{{vehicle['vehicle_name']}} ({{ vehicle['vehicle_code'] }})</th>
+				<th scope="row">
+					{{vehicle['vehicle_name']}} ({{ vehicle['vehicle_code'] }})
+				</th>
 				<td>{{ vehicle['vehicle_rate'] }}</td>
 				<td class="gap-2">
 					<a
@@ -235,12 +241,6 @@
 			</tr>
 		</tfoot>
 	</table>
-	<div class="form-group align-middle text-center mt-5">
-		<button type="submit" class="btn btn-outline-success w-25 mb-3">
-			Simpan data
-			<i class="fa-regular fa-floppy-disk"></i>
-		</button>
-	</div>
 </div>
 
 {% endblock %}
