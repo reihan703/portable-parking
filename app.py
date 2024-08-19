@@ -217,11 +217,18 @@ def manage_tickets():
 @app.route('/manage_locations', methods=('GET', 'POST'))
 @login_required
 def manage_locations():
+    locations = []
     if not session['role'] == 'admin':
         flash("Anda tidak memiliki hak akses", "info")
         return redirect(url_for('reports'))
+    conn = get_db_connection_row()
+    query = '''
+    SELECT * FROM locations 
+    '''
+    locations = conn.execute(query).fetchall()
+    conn.close()
 
-    return render_template('manage_locations.html')
+    return render_template('manage_locations.html', locations=locations)
 
 
 @app.route('/add_location', methods=('GET', 'POST'))
