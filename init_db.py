@@ -58,7 +58,23 @@ cur.execute("INSERT INTO transactions (vehicle_code, price, created, location_id
             ('MT2', '4000', '2024-08-13 21:00', '2')
             )
 
+# Create dummy vehicles
+cur.execute("INSERT INTO vehicles (vehicle_code, vehicle_name, price, location_id) VALUES (?, ?, ?, ?)",
+            ('MT1', 'Motor Kecil', '2000', '1')
+            )
+cur.execute("INSERT INTO vehicles (vehicle_code, vehicle_name, price, location_id) VALUES (?, ?, ?, ?)",
+            ('MT2', 'Motor Besar', '4000', '1')
+            )
 
+cur.execute("INSERT INTO vehicles (vehicle_code, vehicle_name, price, location_id) VALUES (?, ?, ?, ?)",
+            ('MT1', 'Motor Bebek', '1000', '2')
+            )
+cur.execute("INSERT INTO vehicles (vehicle_code, vehicle_name, price, location_id) VALUES (?, ?, ?, ?)",
+            ('MT2', 'Motor Matic', '3000', '2')
+            )
+cur.execute("INSERT INTO vehicles (vehicle_code, vehicle_name, price, location_id) VALUES (?, ?, ?, ?)",
+            ('MT3', 'Motor Kopling', '4000', '2')
+            )
 
 connection.commit()
 connection.close()
