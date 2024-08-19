@@ -79,6 +79,9 @@ cur.execute("INSERT INTO parking_transaction (transaction_id, raspberry_id, loca
 cur.execute("INSERT INTO parking_transaction (transaction_id, raspberry_id, location_id, image_path, vehicle_id, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
             ('asds', 2, 2, 'sini2', 3, 'parkir', '2024-08-19 21:00')
             )
+cur.execute("INSERT INTO parking_transaction (transaction_id, raspberry_id, location_id, image_path, vehicle_id, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            ('asdss', 2, 2, 'sini3', 2, 'parkir', '2024-08-17 21:00')
+            )
 
 connection.commit()
 connection.close()

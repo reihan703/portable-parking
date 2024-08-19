@@ -132,14 +132,19 @@ def reports():
                     for i in range(14)]
 
     location_options = conn.execute(
-        'SELECT DISTINCT id, location_name FROM locations WHERE location_owner_id = ?', (user_id,)).fetchall()
+        'SELECT DISTINCT id, location_name FROM parking_location WHERE owner_id = ?', (
+            user_id,)
+    ).fetchall()
 
+
+    # Fetch vehicle options based on the new schema
     vehicle_options = conn.execute(
         """
-        SELECT DISTINCT t.vehicle_code 
-        FROM transactions t 
-        JOIN locations l ON t.location_id = l.id 
-        WHERE l.location_owner_id = ?
+        SELECT v.vehicle_code, t.vehicle_id 
+        FROM parking_transaction t
+        JOIN parking_location l ON t.location_id = l.id
+        JOIN parking_vehicle v ON t.vehicle_id = v.id
+        WHERE l.owner_id = ?
         """,
         (user_id,)
     ).fetchall()
@@ -150,16 +155,18 @@ def reports():
         locationFilter = request.form.get('locationFilter')
         vehicleFilter = request.form.get('vehicleFilter')
 
+        # Construct the query based on the new schema
         query = '''
-            SELECT t.*, l.location_name 
-            FROM transactions t 
-            JOIN locations l ON t.location_id = l.id 
-            WHERE l.location_owner_id = ?
+            SELECT t.*, l.location_name, v.vehicle_code 
+            FROM parking_transaction t 
+            JOIN parking_location l ON t.location_id = l.id 
+            JOIN parking_vehicle v ON t.vehicle_id = v.id 
+            WHERE l.owner_id = ?
         '''
         params = [user_id]
 
         if dateFilter:
-            query += ' AND strftime("%Y-%m-%d", t.created) = ?'
+            query += ' AND strftime("%Y-%m-%d", t.created_at) = ?'
             params.append(dateFilter)
 
         if locationFilter:
@@ -167,10 +174,11 @@ def reports():
             params.append(locationFilter)
 
         if vehicleFilter:
-            query += ' AND t.vehicle_code = ?'
+            query += ' AND t.vehicle_id = ?'
             params.append(vehicleFilter)
-
+        print(query, params, '\n')
         reports = conn.execute(query, params).fetchall()
+        print(reports)
 
     conn.close()
 
@@ -292,10 +300,10 @@ def login():
         conn = get_db_connection_row()
         cur = conn.cursor()
         user_login = cur.execute('SELECT * FROM parking_admin WHERE username = ? and user_pass = ?',
-                           (username, password)).fetchone()
+                                 (username, password)).fetchone()
         if not user_login:
             user_login = cur.execute('SELECT * FROM parking_user WHERE username = ? and user_pass = ?',
-                               (username, password)).fetchone()
+                                     (username, password)).fetchone()
         conn.commit()
         conn.close()
         if user_login:
