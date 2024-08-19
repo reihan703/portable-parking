@@ -15,7 +15,7 @@
 			integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
 			crossorigin="anonymous"
 		/>
-		<link href="../static/css/style.css" rel="stylesheet">
+		<link href="../static/css/style.css" rel="stylesheet" />
 
 		<title>{% block title %} {% endblock %}</title>
 	</head>
@@ -41,48 +41,53 @@
 			>
 				<ul class="navbar-nav">
 					{% if current_user.is_authenticated %}
-						<li class="nav-item mr-3">
-							<a class="nav-link" href="{{url_for('create')}}"
-								>New Post</a
-							>
-						</li>
-						<li class="nav-item mr-3">
-							<a class="nav-link" href="{{url_for('reports')}}"
-								>Reports</a
-							>
-						</li>
-						<li class="nav-item mr-3">
-							<a class="nav-link" href="{{url_for('manage_tickets')}}"
-								>Manage Tickets</a
-							>
-						</li>
-						{% if session['role']=='admin' %}
-							<li class="nav-item mr-3">
-								<a
-									class="nav-link"
-									href="{{url_for('manage_locations')}}"
-									>Manage Locations</a
-								>
-							</li>
-						{% endif %}
-						<li class="nav-item mx-5">
-							<a
-								type="button"
-								class="btn btn-outline-danger btn-lg"
-								href="{{ url_for('logout') }}"
-							>
-								Logout
-							</a>
-						</li>
+					<li class="nav-item mr-3">
+						<a class="nav-link" href="{{url_for('create')}}"
+							>New Post</a
+						>
+					</li>
+					<li class="nav-item mr-3">
+						<a class="nav-link" href="{{url_for('reports')}}"
+							>Reports</a
+						>
+					</li>
+					<li class="nav-item mr-3">
+						<a class="nav-link" href="{{url_for('manage_tickets')}}"
+							>Manage Tickets</a
+						>
+					</li>
+					{% if session['role']=='admin' %}
+					<li class="nav-item mr-3">
+						<a
+							class="nav-link"
+							href="{{url_for('manage_locations')}}"
+							>Manage Locations</a
+						>
+					</li>
+					{% endif %}
+					<li class="nav-item mx-5">
+						<a
+							type="button"
+							class="btn btn-outline-danger btn-lg"
+							href="{{ url_for('logout') }}"
+						>
+							Logout
+						</a>
+					</li>
 					{% endif %}
 				</ul>
 			</div>
 		</nav>
 		<div class="container-fluid pt-5">
 			<!-- Get all flashing messages -->
-			{% for message in get_flashed_messages() %}
-			<div class="alert alert-danger">{{ message }}</div>
-			{% endfor %} {% block content %} {% endblock %}
+			{% with messages = get_flashed_messages(with_categories=True) %} 
+				{%if messages %} 
+					{% for category, message in messages %}
+						<div class="alert alert-{{ category }}">{{ message }}</div>
+					{% endfor %} 
+				{% endif %}
+			{% endwith %} 
+			{% block content%} {% endblock %}
 		</div>
 
 		<!-- Optional JavaScript -->

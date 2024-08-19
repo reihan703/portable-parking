@@ -231,25 +231,42 @@ def manage_tickets():
                 query, (ticket,)).fetchone()
 
             if not transaction:
-                flash("Data transaksi tidak ditemukan.", "info")
+                flash("Data transaksi tidak ditemukan.", "warning")
                 return render_template('manage_tickets.html', transaction=transaction, price=price)
 
             price = count_price(date_then=transaction['created_at'], price=transaction['vehicle_rate']) 
             vehicle_query = '''
-                SELECT v.vehicle_code, v.id 
+                SELECT DISTINCT v.vehicle_code, v.id 
                 FROM parking_vehicle v
-                JOIN parking_location_vehicle pv ON pv.vehicle_id = v.vehicle_id
+                JOIN parking_location_vehicle plv ON plv.vehicle_id = v.id
+                JOIN parking_transaction pt ON pt.location_id = plv.location_id
+                WHERE pt.location_id = ?
             '''
+            vehicles = conn.execute(
+                vehicle_query, (transaction['location_id'],)).fetchall()
+    conn.close()
 
-    return render_template('manage_tickets.html', transaction=transaction, price=price)
+    return render_template('manage_tickets.html', transaction=transaction, price=price, vehicles=vehicles)
 
 
-@app.route('/<string:id>/edit_ticket', methods=('GET', 'POST'))
+@app.route('/edit_ticket/<string:id>', methods=('GET', 'POST'))
 @login_required
 def edit_ticket(id):
-    pass
+    vehicle_id = request.form.get('editVehicleCode')
+    conn = get_db_connection()
+    query = '''
+        UPDATE parking_transaction
+        SET vehicle_id = ?
+        WHERE transaction_id = ?
+    '''
+    conn.execute(query, (vehicle_id, id))
+    conn.commit()
+    conn.close()
+    flash('Vehicle code updated successfully!', 'success')
+    return redirect(url_for('manage_tickets'))  # Redirect to a relevant page
 
-@app.route('/<string:id>/delete_ticket', methods=('GET', 'POST'))
+
+@app.route('/delete_ticket/<string:id>', methods=('GET', 'POST'))
 @login_required
 def delete_ticket(id):
     pass
@@ -262,7 +279,7 @@ def delete_ticket(id):
 def manage_locations():
     locations = []
     if not session['role'] == 'admin':
-        flash("Anda tidak memiliki hak akses", "info")
+        flash("Anda tidak memiliki hak akses", "warning")
         return redirect(url_for('reports'))
     conn = get_db_connection_row()
     query = '''
@@ -310,7 +327,7 @@ def get_vehicle(location_id):
     return vehicles
 
 
-@app.route('/<int:id>/edit_location', methods=('GET', 'POST'))
+@app.route('/edit_location/<int:id>/', methods=('GET', 'POST'))
 @login_required
 def edit_location(id):
     location = get_location(id)
@@ -352,7 +369,7 @@ def login():
             login_user(user)
             return redirect(url_for('reports'))
         else:
-            flash('Invalid username or password!')
+            flash('Invalid username or password!', "danger")
     return render_template('login.html')
 
 

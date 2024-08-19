@@ -162,18 +162,33 @@
 				</div>
 				<div class="modal-body">
 					<div class="container d-flex justify-content-center mb-5">
-						<div class="form">
+						<form class="form" method="POST" action="{{ url_for('edit_ticket', id=transaction['transaction_id']) }}">
 							<select
 								class="form-select mr-sm-2 editVehicleCode"
 								id="editVehicleCode"
 								name="editVehicleCode"
 							>
-								<option value="{{ transaction['vehicle_id'] }}" selected>{{ transaction['vehicle_code'] }}</option>
-								{% for date in date_options %}
-								<option value="{{ date }}">{{ date }}</option>
+								<option
+									value="{{ transaction['vehicle_id'] }}"
+									selected
+									disabled
+								>
+									{{ transaction['vehicle_code'] }}
+								</option>
+								{% for vehicle in vehicles %}
+									<option value="{{ vehicle['id'] }}">
+										{{ vehicle['vehicle_code'] }}
+									</option>
 								{% endfor %}
 							</select>
-						</div>
+							<button
+								type="submit"
+								id="updateVehicleCode"
+								class="btn btn-outline-primary mx-2 my-4"
+							>
+								Ubah Kode Kendaraan
+							</button>
+						</form>
 					</div>
 				</div>
 				<div class="modal-footer">
