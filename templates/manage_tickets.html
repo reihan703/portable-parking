@@ -12,14 +12,18 @@
 			/>
 		</div>
 		<div class="col-2 d-flex justify-content-between">
-			<button type="submit" id="searchTicket" class="btn btn-outline-primary w-50 mx-2">
+			<button
+				type="submit"
+				id="searchTicket"
+				class="btn btn-outline-primary w-50 mx-2"
+			>
 				Cari
 			</button>
 			<a
-				type="submit"
+				type="button"
 				class="btn btn-outline-secondary w-50 mx-2"
 				data-bs-toggle="modal"
-				data-bs-target="#exampleModal"
+				data-bs-target="#qr-reader"
 			>
 				Pindai
 			</a>
@@ -27,7 +31,8 @@
 	</div>
 </form>
 
-<div class="modal" id="exampleModal" tabindex="-1">
+<!-- SCAN QR MODAL -->
+<div class="modal" id="qr-reader" tabindex="-1">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -61,80 +66,128 @@
 
 <div class="px-4">
 	{% if transaction %}
-		<table class="table">
-			<thead class="thead-light text-center align-middle">
-				<tr>
-					<th scope="col">ID Tiket</th>
-					<th scope="col">Kode Kendaraan</th>
-					<th scope="col">Tanggal Terbuat</th>
-					<th scope="col">Tanggal Selesai</th>
-					<th scope="col">Status</th>
-					<th scope="col">Harga</th>
-					<th scope="col"></th>
-				</tr>
-			</thead>
-			<tbody class="text-center">
-				<tr>
-					<th scope="row">{{ transaction['transaction_id'] }}</th>
-					<td>{{ transaction['vehicle_code'] }}</td>
-					<td>{{ transaction['created_at'] }}</td>
-					<td>{{ transaction['finished_at'] }}</td>
-					<td>{{ transaction['status'] }}</td>
-					<td>{{ price }}</td>
-					<td>
-						<div class="btn-group">
-							<a
-								type="button"
-								class="btn btn-outline-warning dropdown-toggle"
-								data-bs-toggle="dropdown"
-								aria-expanded="false"
-							>
-								Sunting
-								<i class="fa-solid fa-pencil"></i>
-							</a>
-							<ul class="dropdown-menu">
-								<!-- Dropdown menu links -->
-								<li>
-									<a class="dropdown-item" href="#"
-										>Ubah Kode Kendaraan</a
-									>
-								</li>
-								<li>
-									<a class="dropdown-item" href="#"
-										>Tutup Transaksi</a
-									>
-								</li>
-							</ul>
-						</div>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-		<div class="container px-5 d-flex justify-content-center">
-			<img
-				src="{{ transaction['image_path'] }}"
-				class="img-fluid"
-				width="75%"
-				height="75%"
-				alt="{{ transaction['image_path'] }}"
-			/>
-		</div>
+	<table class="table">
+		<thead class="thead-light text-center align-middle">
+			<tr>
+				<th scope="col">ID Tiket</th>
+				<th scope="col">Kode Kendaraan</th>
+				<th scope="col">Tanggal Terbuat</th>
+				<th scope="col">Tanggal Selesai</th>
+				<th scope="col">Status</th>
+				<th scope="col">Harga</th>
+				<th scope="col"></th>
+			</tr>
+		</thead>
+		<tbody class="text-center">
+			<tr>
+				<th scope="row">{{ transaction['transaction_id'] }}</th>
+				<td>{{ transaction['vehicle_code'] }}</td>
+				<td>{{ transaction['created_at'] }}</td>
+				<td>{{ transaction['finished_at'] }}</td>
+				<td>{{ transaction['status'] }}</td>
+				<td>{{ price }}</td>
+				<td>
+					<div class="btn-group">
+						<a
+							type="button"
+							class="btn btn-outline-warning dropdown-toggle"
+							data-bs-toggle="dropdown"
+							aria-expanded="false"
+						>
+							Sunting
+							<i class="fa-solid fa-pencil"></i>
+						</a>
+						<ul class="dropdown-menu">
+							<!-- Dropdown menu links -->
+							<li>
+								<a
+									type="button"
+									class="dropdown-item"
+									data-bs-toggle="modal"
+									data-bs-target="#edit_ticket"
+								>
+									Ubah Kode Kendaraan
+								</a>
+							</li>
+							<li>
+								<a
+									class="dropdown-item"
+									href="{{ url_for('delete_ticket', id=transaction['transaction_id']) }}"
+									>Tutup Transaksi</a
+								>
+							</li>
+						</ul>
+					</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<div class="container px-5 d-flex justify-content-center">
+		<img
+			src="{{ transaction['image_path'] }}"
+			class="img-fluid"
+			width="75%"
+			height="75%"
+			alt="{{ transaction['image_path'] }}"
+		/>
+	</div>
 	{% else %}
-		 <!-- Bootstrap 5 warning alert -->
-		<div class="alert alert-warning text-center" role="alert">
-			⚠️ Data kosong, pindai tiket terlebih dahulu.
-		</div>
-		<div class="container px-5 d-flex justify-content-center">
-			<img
-				src="static/assets/failed_photo.jpg"
-				class="img-fluid"
-				width="75%"
-				height="75%"
-				alt="image"
-			/>
-		</div>
+	<!-- Bootstrap 5 warning alert -->
+	<div class="alert alert-warning text-center" role="alert">
+		⚠️ Data kosong, pindai tiket terlebih dahulu.
+	</div>
+	<div class="container px-5 d-flex justify-content-center">
+		<img
+			src="static/assets/failed_photo.jpg"
+			class="img-fluid"
+			width="75%"
+			height="75%"
+			alt="image"
+		/>
+	</div>
 	{% endif %}
-</div>
 
+	<!-- EDIT KODE KENDARAAN MODAL -->
+	<div class="modal" id="edit_ticket" tabindex="-1">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Ubah Kode Kendaraan</h5>
+					<button
+						type="button"
+						class="btn-close"
+						data-bs-dismiss="modal"
+						aria-label="Close"
+					></button>
+				</div>
+				<div class="modal-body">
+					<div class="container d-flex justify-content-center mb-5">
+						<div class="form">
+							<select
+								class="form-select mr-sm-2 editVehicleCode"
+								id="editVehicleCode"
+								name="editVehicleCode"
+							>
+								<option value="{{ transaction['vehicle_id'] }}" selected>{{ transaction['vehicle_code'] }}</option>
+								{% for date in date_options %}
+								<option value="{{ date }}">{{ date }}</option>
+								{% endfor %}
+							</select>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button
+						type="button"
+						class="btn btn-secondary"
+						data-bs-dismiss="modal"
+					>
+						Close
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 
 {% endblock %}

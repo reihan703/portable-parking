@@ -207,6 +207,7 @@ def count_price(date_then: str, price: int):
 @login_required
 def manage_tickets():
     conn = get_db_connection_row()
+    vehicles = ''
     transaction = ''
     price=0
     ticket = ''
@@ -217,7 +218,7 @@ def manage_tickets():
                 data = request.get_json()
                 ticket = data.get('ticket')
             except:
-                print('empty')
+                pass
          # Query the database to find a matching transaction
         if ticket:
             query = '''
@@ -228,15 +229,30 @@ def manage_tickets():
             '''
             transaction = conn.execute(
                 query, (ticket,)).fetchone()
-            price = count_price(date_then=transaction['created_at'], price=transaction['vehicle_rate']) 
 
-        # Handle if no transaction is found
-        if not transaction:
-            flash("Data transaksi tidak ditemukan.", "info")
+            if not transaction:
+                flash("Data transaksi tidak ditemukan.", "info")
+                return render_template('manage_tickets.html', transaction=transaction, price=price)
+
+            price = count_price(date_then=transaction['created_at'], price=transaction['vehicle_rate']) 
+            vehicle_query = '''
+                SELECT v.vehicle_code, v.id 
+                FROM parking_vehicle v
+                JOIN parking_location_vehicle pv ON pv.vehicle_id = v.vehicle_id
+            '''
 
     return render_template('manage_tickets.html', transaction=transaction, price=price)
 
 
+@app.route('/<string:id>/edit_ticket', methods=('GET', 'POST'))
+@login_required
+def edit_ticket(id):
+    pass
+
+@app.route('/<string:id>/delete_ticket', methods=('GET', 'POST'))
+@login_required
+def delete_ticket(id):
+    pass
 # ----------------------------- END MANAGE TICKETS --------------------------------------
 
 
