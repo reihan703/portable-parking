@@ -2,78 +2,85 @@ import sqlite3
 
 connection = sqlite3.connect('database.db')
 
-
-with open('schema.sql') as f:
+with open('schema2.sql') as f:
     connection.executescript(f.read())
 
 cur = connection.cursor()
 
-# Testing
-cur.execute("INSERT INTO posts (title, content) VALUES (?, ?)",
-            ('First Post', 'Content for the first post')
+# Create dummy admin
+cur.execute("INSERT INTO parking_admin (username, user_pass, name, email, role) VALUES (?, ?, ?, ?, ?)",
+            ('admin', 'password', 'admin lokasi 1', 'admin@gmail.com', 'admin')
             )
 
-cur.execute("INSERT INTO posts (title, content) VALUES (?, ?)",
-            ('Second Post', 'Content for the second post')
+# Create dummy owner
+cur.execute("INSERT INTO parking_user (username, user_pass, name, email, role) VALUES (?, ?, ?, ?, ?)",
+            ('owner', 'password', 'owner lokasi 1', 'owner@gmail.com', 'owner')
+            )
+cur.execute("INSERT INTO parking_user (username, user_pass, name, email, role) VALUES (?, ?, ?, ?, ?)",
+            ('owner2', 'password', 'owner lokasi 2', 'owner2@gmail.com', 'owner')
             )
 
-# Create dummy user
-cur.execute("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)",
-            ('admin', 'admin@gmail.com', 'password', 'admin')
+# Create dummy worker
+cur.execute("INSERT INTO parking_user (username, user_pass, name, email, role) VALUES (?, ?, ?, ?, ?)",
+            ('worker', 'password', 'worker lokasi 1', 'worker@gmail.com', 'worker')
+            )
+cur.execute("INSERT INTO parking_user (username, user_pass, name, email, role) VALUES (?, ?, ?, ?, ?)",
+            ('worker2', 'password', 'worker lokasi 2', 'worker2@gmail.com', 'worker')
             )
 
-cur.execute("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)",
-            ('owner', 'owner@gmail.com', 'password', 'owner')
+# Create dummy raspberry
+cur.execute("INSERT INTO parking_raspberry (raspberry_name, location_id) VALUES (?, ?)",
+            ('raspi lokasi 1', 1)
+            )
+cur.execute("INSERT INTO parking_raspberry (raspberry_name, location_id) VALUES (?, ?)",
+            ('raspi lokasi 2', 2)
             )
 
-cur.execute("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)",
-            ('owner2', 'owner2@gmail.com', 'password', 'owner')
+# Create dummy location
+cur.execute("INSERT INTO parking_location (admin_id, owner_id, location_name, location_key) VALUES (?, ?, ?, ?)",
+            (1, 1, 'lokasi 1', 'password')
+            )
+cur.execute("INSERT INTO parking_location (admin_id, owner_id, location_name, location_key) VALUES (?, ?, ?, ?)",
+            (1, 2, 'lokasi 2', 'password')
             )
 
-cur.execute("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)",
-            ('worker', 'worker@gmail.com', 'password', 'worker')
+# Create dummy vehicle
+cur.execute("INSERT INTO parking_vehicle (vehicle_code, vehicle_name, vehicle_rate) VALUES (?, ?, ?)",
+            ('MT1', 'Motor Kecil', 2000)
+            )
+cur.execute("INSERT INTO parking_vehicle (vehicle_code, vehicle_name, vehicle_rate) VALUES (?, ?, ?)",
+            ('MT2', 'Motor Besar', 4000)
+            )
+cur.execute("INSERT INTO parking_vehicle (vehicle_code, vehicle_name, vehicle_rate) VALUES (?, ?, ?)",
+            ('MT3', 'Motor Bebek', 1000)
             )
 
-# Create dummy locations
-cur.execute("INSERT INTO locations (location_name, location_owner_id) VALUES (?, ?)",
-            ('testing', '2')
+# Create dummy location_vehicle
+cur.execute("INSERT INTO parking_location_vehicle (location_id, vehicle_id) VALUES (?, ?)",
+            (1, 1)
+            )
+cur.execute("INSERT INTO parking_location_vehicle (location_id, vehicle_id) VALUES (?, ?)",
+            (1, 2)
+            )
+cur.execute("INSERT INTO parking_location_vehicle (location_id, vehicle_id) VALUES (?, ?)",
+            (2, 3)
+            )
+cur.execute("INSERT INTO parking_location_vehicle (location_id, vehicle_id) VALUES (?, ?)",
+            (2, 2)
             )
 
-cur.execute("INSERT INTO locations (location_name, location_owner_id) VALUES (?, ?)",
-            ('mencoba', '3')
+# Create dummy transaction
+cur.execute("INSERT INTO parking_transaction (transaction_id, raspberry_id, location_id, image_path, vehicle_id, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            ('asd', 1, 1, 'sini', 1, 'Parkir', '2024-08-13 21:00')
             )
-
-# Create dummy transactions
-cur.execute("INSERT INTO transactions (vehicle_code, price, created, location_id) VALUES (?, ?, ?, ?)",
-            ('MT1', '2000', '2024-08-15 21:00', '1')
+cur.execute("INSERT INTO parking_transaction (transaction_id, raspberry_id, location_id, image_path, vehicle_id, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            ('asdd', 1, 1, 'sini1', 2, 'Keluar', '2024-08-11 21:00')
             )
-cur.execute("INSERT INTO transactions (vehicle_code, price, created, location_id) VALUES (?, ?, ?, ?)",
-            ('MT2', '3000', '2024-08-17 21:00', '1')
+cur.execute("INSERT INTO parking_transaction (transaction_id, raspberry_id, location_id, image_path, vehicle_id, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            ('asds', 2, 2, 'sini2', 3, 'Parkir', '2024-08-19 21:00')
             )
-
-cur.execute("INSERT INTO transactions (vehicle_code, price, created, location_id) VALUES (?, ?, ?, ?)",
-            ('MT1', '2000', '2024-08-15 21:00', '2')
-            )
-cur.execute("INSERT INTO transactions (vehicle_code, price, created, location_id) VALUES (?, ?, ?, ?)",
-            ('MT2', '4000', '2024-08-13 21:00', '2')
-            )
-
-# Create dummy vehicles
-cur.execute("INSERT INTO vehicles (vehicle_code, vehicle_name, price, location_id) VALUES (?, ?, ?, ?)",
-            ('MT1', 'Motor Kecil', '2000', '1')
-            )
-cur.execute("INSERT INTO vehicles (vehicle_code, vehicle_name, price, location_id) VALUES (?, ?, ?, ?)",
-            ('MT2', 'Motor Besar', '4000', '1')
-            )
-
-cur.execute("INSERT INTO vehicles (vehicle_code, vehicle_name, price, location_id) VALUES (?, ?, ?, ?)",
-            ('MT1', 'Motor Bebek', '1000', '2')
-            )
-cur.execute("INSERT INTO vehicles (vehicle_code, vehicle_name, price, location_id) VALUES (?, ?, ?, ?)",
-            ('MT2', 'Motor Matic', '3000', '2')
-            )
-cur.execute("INSERT INTO vehicles (vehicle_code, vehicle_name, price, location_id) VALUES (?, ?, ?, ?)",
-            ('MT3', 'Motor Kopling', '4000', '2')
+cur.execute("INSERT INTO parking_transaction (transaction_id, raspberry_id, location_id, image_path, vehicle_id, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            ('asdss', 2, 2, 'sini3', 2, 'Keluar', '2024-08-17 21:00')
             )
 
 connection.commit()
