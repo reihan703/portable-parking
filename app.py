@@ -3,6 +3,7 @@ import math
 import secrets
 import sqlite3
 import string
+import bcrypt
 from flask import Flask, render_template, request, session, url_for, flash, redirect
 from werkzeug.exceptions import abort
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
@@ -44,15 +45,56 @@ def get_db_connection():
     return conn
 
 
-# ----------------------------- REPORTS ---------------------------------------------
-@app.route('/', methods=('GET', 'POST'))
+# ----------------------------- ADD NEW USER ----------------------------------------
+@app.route('/add_new_user', methods=('POST',))
 @login_required
-def reports():
-    conn = get_db_connection_row()
-    user_id = session["id"]
+def add_new_user():
+    conn = get_db_connection()
     user_id = current_user.id
-    reports = []
+    date_options, location_options, vehicle_options = get_report_options(
+        conn=conn, user_id=user_id)
+    params = []
+    if not session['role'] == 'admin':
+        flash("Hanya admin yang bisa menambahkan user baru.", "danger")
+        return render_template('reports.html',
+                               date_options=date_options,
+                               location_options=location_options,
+                               vehicle_options=vehicle_options)
+    new_username = request.form.get('newUsername')
+    new_user_password = request.form.get('newUserPassword')
+    new_name = request.form.get('newName')
+    new_user_email = request.form.get('newUserEmail')
+    new_user_role = request.form.get('newUserRole')
+    created_by = session['id']
 
+    # Hash the password
+    new_user_password = bcrypt.hashpw(new_user_password.encode('utf-8'), bcrypt.gensalt())
+    params.append(new_username)
+    params.append(new_user_password)
+    params.append(new_name)
+    params.append(new_user_email)
+    params.append(new_user_role)
+    params.append(created_by)
+
+    try:
+        query = '''
+            INSERT INTO parking_user (username, user_pass, name, email, role, created_by)
+            VALUES (?, ?, ?, ?, ?, ?)
+        '''
+        conn.execute(query, params)
+        conn.commit()
+        flash("Pengguna baru berhasil ditambahkan.", "success")
+    except Exception as e:
+        flash(f"Pengguna baru gagal ditambahkan {e}", "danger")
+
+    conn.close()
+    return render_template('reports.html',
+                           date_options=date_options,
+                           location_options=location_options,
+                           vehicle_options=vehicle_options)
+# -----------------------------END ADD NEW USER -------------------------------------
+# ----------------------------- REPORTS ---------------------------------------------
+def get_report_options(conn: sqlite3.Connection, user_id: int):
     # Query the database for options
     # Generate date
     now = datetime.now()
@@ -90,6 +132,17 @@ def reports():
             JOIN parking_vehicle v ON t.vehicle_id = v.id
             """
         ).fetchall()
+
+    return date_options, location_options, vehicle_options
+
+@app.route('/', methods=('GET', 'POST'))
+@login_required
+def reports():
+    conn = get_db_connection_row()
+    user_id = current_user.id
+    reports = []
+
+    date_options, location_options, vehicle_options = get_report_options(conn=conn, user_id=user_id)
 
     if request.method == 'POST':
         user_id = current_user.id
@@ -221,14 +274,18 @@ def edit_ticket(id):
 def delete_ticket(id):
     conn = get_db_connection()
 
-    query = '''
-        DELETE FROM parking_transaction
-        WHERE transaction_id = ?
-    '''
-    conn.execute(query, (id,))
-    conn.commit()
+    try:
+        query = '''
+            DELETE FROM parking_transaction
+            WHERE transaction_id = ?
+        '''
+        conn.execute(query, (id,))
+        conn.commit()
+        flash('ID transaksi {} berhasil DIHAPUS'.format(id), "success")
+    except:
+        flash('ID transaksi {} gagal DIHAPUS'.format(id), "danger")
+
     conn.close()
-    flash('ID transaksi {} berhasil DIHAPUS'.format(id), "success")
     return redirect(url_for('manage_tickets'))
 
 

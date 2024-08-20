@@ -118,7 +118,7 @@
 							></button>
 						</div>
 						<div class="modal-body">
-							<form method="POST" action="">
+							<form method="POST" action="{{ url_for('add_new_user') }}">
 								<div class="mb-3">
 									<label for="newUsername" class="form-label"
 										>Username</label
@@ -128,6 +128,18 @@
 										class="form-control"
 										id="newUsername"
 										name="newUsername"
+										required
+									/>
+								</div>
+								<div class="mb-3">
+									<label for="newName" class="form-label"
+										>Name</label
+									>
+									<input
+										type="text"
+										class="form-control"
+										id="newName"
+										name="newName"
 										required
 									/>
 								</div>
@@ -142,6 +154,13 @@
 										name="newUserEmail"
 										required
 									/>
+								</div>
+								<div class="mb-3">
+									<label for="role" class="form-label">Role</label>
+									<select class="form-select" id="newUserRole" name="newUserRole" required>
+										<option selected value="owner">Owner</option>
+										<option value="worker">Worker</option>
+									</select>
 								</div>
 								<div class="mb-3">
 									<label for="newUserPassword" class="form-label"
