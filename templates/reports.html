@@ -40,6 +40,9 @@
 			<thead class="thead-light">
 				<tr>
 					<th scope="col" class="text-center align-middle">
+						Kode Transaksi
+					</th>
+					<th scope="col" class="text-center align-middle">
 						Time
 					</th>
 					<th scope="col" class="text-center">
@@ -53,15 +56,20 @@
 			<tbody class="text-center">
 				{% for report in reports %}
 					<tr>
-						<th scope="row">{{ report['created_at'] }}</th>
+						<th scope="row">{{ report['transaction_id'] }}</th>
+						<td>{{ report['created_at'] }}</td>
 						<td>{{ report['vehicle_code'] }}</td>
-						<td>Test</td>
+						{% if report['paid_price'] %}
+							<td class="fw-bold">{{ report['paid_price'] }}</td>
+						{% else %}
+							<td class="fw-bold">Transaksi belum selesai</td>
+						{% endif %}
 					</tr>
 				{% endfor %}
 			</tbody>
 			<tfoot class="text-center">
 				<tr>
-					<th scope="row" colspan="2">Grand Total</th>
+					<th scope="row" colspan="3">Grand Total</th>
 					<td>{{ grand_total }}</td>
 				</tr>
 			</tfoot>

@@ -68,7 +68,8 @@ def add_new_user():
     created_by = session['id']
 
     # Hash the password
-    new_user_password = bcrypt.hashpw(new_user_password.encode('utf-8'), bcrypt.gensalt())
+    new_user_password = bcrypt.hashpw(
+        new_user_password.encode('utf-8'), bcrypt.gensalt())
     params.append(new_username)
     params.append(new_user_password)
     params.append(new_name)
@@ -94,6 +95,8 @@ def add_new_user():
                            vehicle_options=vehicle_options)
 # -----------------------------END ADD NEW USER -------------------------------------
 # ----------------------------- REPORTS ---------------------------------------------
+
+
 def get_report_options(conn: sqlite3.Connection, user_id: int):
     # Query the database for options
     # Generate date
@@ -135,14 +138,17 @@ def get_report_options(conn: sqlite3.Connection, user_id: int):
 
     return date_options, location_options, vehicle_options
 
+
 @app.route('/', methods=('GET', 'POST'))
 @login_required
 def reports():
     conn = get_db_connection_row()
     user_id = current_user.id
     reports = []
+    total_paid_price = 0
 
-    date_options, location_options, vehicle_options = get_report_options(conn=conn, user_id=user_id)
+    date_options, location_options, vehicle_options = get_report_options(
+        conn=conn, user_id=user_id)
 
     if request.method == 'POST':
         user_id = current_user.id
@@ -151,10 +157,10 @@ def reports():
         vehicleFilter = request.form.get('vehicleFilter')
         params = []
 
-        # Get data from databse based on filter
-        if not session['role'] == 'admin':
+        # Get data from database based on filter
+        if session['role'] != 'admin':
             query = '''
-                SELECT t.*, l.location_name, v.vehicle_code 
+                SELECT t.*, l.location_name, v.vehicle_code, SUM(t.paid_price) AS total_paid_price
                 FROM parking_transaction t 
                 JOIN parking_location l ON t.location_id = l.id 
                 JOIN parking_vehicle v ON t.vehicle_id = v.id 
@@ -163,7 +169,7 @@ def reports():
             params.append(user_id)
         else:
             query = '''
-                SELECT t.*, l.location_name, v.vehicle_code 
+                SELECT t.*, l.location_name, v.vehicle_code, SUM(t.paid_price) AS total_paid_price
                 FROM parking_transaction t 
                 JOIN parking_location l ON t.location_id = l.id 
                 JOIN parking_vehicle v ON t.vehicle_id = v.id 
@@ -180,12 +186,21 @@ def reports():
         if vehicleFilter:
             query += ' AND t.vehicle_id = ?'
             params.append(vehicleFilter)
-        reports = conn.execute(query, params).fetchall()
+
+        # Group by to ensure sum calculation is correct
+        query += ' GROUP BY t.transaction_id, l.location_name, v.vehicle_code'
+
+        results = conn.execute(query, params).fetchall()
+        if results:
+            reports = results
+            total_paid_price = sum(result['total_paid_price']
+                                   for result in results if result['total_paid_price'] is not None)
 
     conn.close()
 
     return render_template('reports.html',
                            reports=reports,
+                           grand_total=total_paid_price,
                            date_options=date_options,
                            location_options=location_options,
                            vehicle_options=vehicle_options)
@@ -289,9 +304,9 @@ def delete_ticket(id):
     return redirect(url_for('manage_tickets'))
 
 
-@app.route('/finish_ticket/<string:id>', methods=('GET', 'POST'))
+@app.route('/finish_ticket/<string:id>/<int:price>', methods=('GET', 'POST'))
 @login_required
-def finish_ticket(id):
+def finish_ticket(id, price):
     conn = get_db_connection()
 
     # Get the current time
@@ -299,10 +314,10 @@ def finish_ticket(id):
     formatted_time = now.strftime('%Y-%m-%d %H:%M')
     query = '''
         UPDATE parking_transaction
-        SET finished_at = ?
+        SET finished_at = ?, paid_price = ?
         WHERE transaction_id = ?
     '''
-    conn.execute(query, (formatted_time, id))
+    conn.execute(query, (formatted_time, price, id))
     conn.commit()
     conn.close()
     flash('ID transaksi {} berhasil DISELESAIKAN'.format(id), "success")
