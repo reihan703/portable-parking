@@ -1,4 +1,6 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %} 
+{% block title %} Laporan {% endblock %}
+{% block content %}
 
 <form method="POST" action="{{ url_for('reports') }}" class="mb-5 px-4">
 	<div class="form-row row align-items-center">
