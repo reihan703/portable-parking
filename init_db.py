@@ -9,23 +9,23 @@ cur = connection.cursor()
 
 # Create dummy admin
 cur.execute("INSERT INTO parking_admin (username, user_pass, name, email, role) VALUES (?, ?, ?, ?, ?)",
-            ('admin', 'password', 'admin lokasi 1', 'admin@gmail.com', 'admin')
+            ('admin', '5f4dcc3b5aa765d61d8327deb882cf99', 'admin lokasi 1', 'admin@gmail.com', 'admin')
             )
 
 # Create dummy owner
 cur.execute("INSERT INTO parking_user (username, user_pass, name, email, role, created_by) VALUES (?, ?, ?, ?, ?, ?)",
-            ('owner', 'password', 'owner lokasi 1', 'owner@gmail.com', 'owner', 1)
+            ('owner', '5f4dcc3b5aa765d61d8327deb882cf99', 'owner lokasi 1', 'owner@gmail.com', 'owner', 1)
             )
 cur.execute("INSERT INTO parking_user (username, user_pass, name, email, role, created_by) VALUES (?, ?, ?, ?, ?, ?)",
-            ('owner2', 'password', 'owner lokasi 2', 'owner2@gmail.com', 'owner', 1)
+            ('owner2', '5f4dcc3b5aa765d61d8327deb882cf99', 'owner lokasi 2', 'owner2@gmail.com', 'owner', 1)
             )
 
 # Create dummy worker
 cur.execute("INSERT INTO parking_user (username, user_pass, name, email, role, created_by) VALUES (?, ?, ?, ?, ?, ?)",
-            ('worker', 'password', 'worker lokasi 1', 'worker@gmail.com', 'worker', 1)
+            ('worker', '5f4dcc3b5aa765d61d8327deb882cf99', 'worker lokasi 1', 'worker@gmail.com', 'worker', 1)
             )
 cur.execute("INSERT INTO parking_user (username, user_pass, name, email, role, created_by) VALUES (?, ?, ?, ?, ?, ?)",
-            ('worker2', 'password', 'worker lokasi 2', 'worker2@gmail.com', 'worker', 1)
+            ('worker2', '5f4dcc3b5aa765d61d8327deb882cf99', 'worker lokasi 2', 'worker2@gmail.com', 'worker', 1)
             )
 
 # Create dummy location

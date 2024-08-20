@@ -1,9 +1,9 @@
 from datetime import datetime, timedelta
+import hashlib
 import math
 import secrets
 import sqlite3
 import string
-import bcrypt
 from flask import Flask, render_template, request, session, url_for, flash, redirect
 from werkzeug.exceptions import abort
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
@@ -68,8 +68,8 @@ def add_new_user():
     created_by = session['id']
 
     # Hash the password
-    new_user_password = bcrypt.hashpw(
-        new_user_password.encode('utf-8'), bcrypt.gensalt())
+    new_user_password = hashlib.md5(
+        new_user_password.encode('utf-8')).hexdigest()
     params.append(new_username)
     params.append(new_user_password)
     params.append(new_name)
@@ -542,6 +542,8 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        password = hashlib.md5(password.encode('utf-8')).hexdigest()
+
         conn = get_db_connection_row()
         cur = conn.cursor()
         user_login = cur.execute('SELECT * FROM parking_admin WHERE username = ? and user_pass = ?',
@@ -569,6 +571,52 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
+
+@app.route('/forgot_password', methods=('POST',))
+def forgot_password():
+    username = request.form.get('forgotUsername')
+    email = request.form.get('forgotEmail')
+
+    conn = get_db_connection_row()
+    query = '''
+        SELECT * 
+        FROM parking_user
+        WHERE username = ?
+        AND email = ?
+    '''
+    user = conn.execute(query, (username, email,)).fetchone()
+    if user:
+        flash('Data ditemukan, silahkan isi kolom berikut untuk mengubah password', 'success')
+        return render_template('forgot_password.html', id=user['id'])
+    conn.close()
+    flash('Data tidak ditemukan, mohon pastikan email dan username benar', 'warning')
+    return render_template('login.html')
+
+
+@app.route('/reset_password', methods=('POST',))
+def reset_password():
+    password = request.form.get('resetUserPassword')
+    password_check = request.form.get('resetUserPasswordCheck')
+    user_id = request.form.get('userId')
+    if password != password_check:
+        flash('Kata sandi tidak sama, mohon tulis dengan benar!', 'danger')
+        return render_template('forgot_password.html', id=user_id)
+
+    # Hash the password
+    password = hashlib.md5(
+        password.encode('utf-8')).hexdigest()
+
+    conn = get_db_connection()
+    query = '''
+        UPDATE parking_user
+        SET user_pass = ?
+        WHERE id = ?
+    '''
+    conn.execute(query, (password, user_id,))
+    conn.commit()
+    conn.close()
+    flash('Kata sandi berhasil diubah.', 'success')
+    return render_template('login.html')
 
 # ----------------------------- END LOGIN -------------------------------------------------
 if __name__ == '__main__':

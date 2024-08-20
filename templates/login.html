@@ -29,5 +29,33 @@
             <button type="submit" class="btn btn-success w-25">Masuk</button>
         </div>
     </form>
+    <div class="d-flex justify-content-center mt-3">
+        <a href="#" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal" class="text-light">Lupa Kata Sandi?</a>
+    </div>
+</div>
+
+<!-- Forgot Password Modal -->
+<div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark text-light">
+            <div class="modal-header">
+                <h5 class="modal-title" id="forgotPasswordModalLabel">Forgot Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="forgotPasswordForm" method="POST" action="{{ url_for('forgot_password') }}">
+                    <div class="mb-3">
+                        <label for="forgotUsername" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="forgotUsername" name="forgotUsername" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="forgotEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="forgotEmail" name="forgotEmail" required>
+                    </div>
+                    <button type="submit" class="btn btn-success">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
