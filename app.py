@@ -304,9 +304,9 @@ def delete_ticket(id):
     return redirect(url_for('manage_tickets'))
 
 
-@app.route('/finish_ticket/<string:id>', methods=('GET', 'POST'))
+@app.route('/finish_ticket/<string:id>/<int:price>', methods=('GET', 'POST'))
 @login_required
-def finish_ticket(id):
+def finish_ticket(id, price):
     conn = get_db_connection()
 
     # Get the current time
@@ -314,10 +314,10 @@ def finish_ticket(id):
     formatted_time = now.strftime('%Y-%m-%d %H:%M')
     query = '''
         UPDATE parking_transaction
-        SET finished_at = ?
+        SET finished_at = ?, paid_price = ?
         WHERE transaction_id = ?
     '''
-    conn.execute(query, (formatted_time, id))
+    conn.execute(query, (formatted_time, price, id))
     conn.commit()
     conn.close()
     flash('ID transaksi {} berhasil DISELESAIKAN'.format(id), "success")

@@ -113,7 +113,7 @@
 								<li>
 									<a
 										class="dropdown-item"
-										href="{{ url_for('finish_ticket', id=transaction['transaction_id']) }}"
+										href="{{ url_for('finish_ticket', id=transaction['transaction_id'], price=price) }}"
 										onclick="return confirm('Apakah Anda yakin ingin menyelesaikan transaksi ini?')"
 										>Selesaikan Transaksi</a
 									>
