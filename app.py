@@ -1,9 +1,9 @@
 from datetime import datetime, timedelta
+import hashlib
 import math
 import secrets
 import sqlite3
 import string
-import bcrypt
 from flask import Flask, render_template, request, session, url_for, flash, redirect
 from werkzeug.exceptions import abort
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
@@ -68,8 +68,8 @@ def add_new_user():
     created_by = session['id']
 
     # Hash the password
-    new_user_password = bcrypt.hashpw(
-        new_user_password.encode('utf-8'), bcrypt.gensalt())
+    new_user_password = hashlib.md5(
+        new_user_password.encode('utf-8')).hexdigest()
     params.append(new_username)
     params.append(new_user_password)
     params.append(new_name)
@@ -542,6 +542,7 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        password = hashlib.md5(password.encode('utf-8')).hexdigest()
         conn = get_db_connection_row()
         cur = conn.cursor()
         user_login = cur.execute('SELECT * FROM parking_admin WHERE username = ? and user_pass = ?',
