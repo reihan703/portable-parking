@@ -22,7 +22,7 @@
 			<select class="form-select mr-sm-2" id="vehicleFilter" name="vehicleFilter">
 				<option value="" selected>Semua Kode Kendaraan</option>
 				{% for vehicle in vehicle_options %}
-                    <option value="{{ vehicle['vehicle_id'] }}">{{ vehicle['vehicle_code'] }}</option>
+                    <option value="{{ vehicle['vehicle_id'] }}">{{ vehicle['vehicle_name'] }} ({{ vehicle['vehicle_code'] }})</option>
                 {% endfor %}
 			</select>
 		</div>

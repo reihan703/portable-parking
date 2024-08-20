@@ -54,42 +54,67 @@ def reports():
     reports = []
 
     # Query the database for options
+    # Generate date
     now = datetime.now()
     date_options = [(now - timedelta(days=i)).strftime('%Y-%m-%d')
                     for i in range(14)]
 
-    location_options = conn.execute(
-        'SELECT DISTINCT id, location_name FROM parking_location WHERE owner_id = ?', (
-            user_id,)
-    ).fetchall()
+    # Generate location option
+    if not session['role'] == 'admin':
+        location_query = 'SELECT DISTINCT id, location_name FROM parking_location WHERE owner_id = ?'
+        location_options = conn.execute(
+            location_query, (user_id,)).fetchall()
+    else:
+        location_query = 'SELECT DISTINCT id, location_name FROM parking_location'
+        location_options = conn.execute(
+            location_query).fetchall()
 
-    # Fetch vehicle options based on the new schema
-    vehicle_options = conn.execute(
-        """
-        SELECT v.vehicle_code, t.vehicle_id 
-        FROM parking_transaction t
-        JOIN parking_location l ON t.location_id = l.id
-        JOIN parking_vehicle v ON t.vehicle_id = v.id
-        WHERE l.owner_id = ?
-        """,
-        (user_id,)
-    ).fetchall()
+    # Genenaret vehicle option
+    if not session['role'] == 'admin':
+        vehicle_options = conn.execute(
+            """
+            SELECT v.vehicle_code, v.vehicle_name, t.vehicle_id 
+            FROM parking_transaction t
+            JOIN parking_location l ON t.location_id = l.id
+            JOIN parking_vehicle v ON t.vehicle_id = v.id
+            WHERE l.owner_id = ?
+            """,
+            (user_id,)
+        ).fetchall()
+    else:
+        vehicle_options = conn.execute(
+            """
+            SELECT v.vehicle_code, v.vehicle_name, t.vehicle_id 
+            FROM parking_transaction t
+            JOIN parking_location l ON t.location_id = l.id
+            JOIN parking_vehicle v ON t.vehicle_id = v.id
+            """
+        ).fetchall()
 
     if request.method == 'POST':
         user_id = current_user.id
         dateFilter = request.form.get('dateFilter')
         locationFilter = request.form.get('locationFilter')
         vehicleFilter = request.form.get('vehicleFilter')
+        params = []
 
-        # Construct the query based on the new schema
-        query = '''
-            SELECT t.*, l.location_name, v.vehicle_code 
-            FROM parking_transaction t 
-            JOIN parking_location l ON t.location_id = l.id 
-            JOIN parking_vehicle v ON t.vehicle_id = v.id 
-            WHERE l.owner_id = ?
-        '''
-        params = [user_id]
+        # Get data from databse based on filter
+        if not session['role'] == 'admin':
+            query = '''
+                SELECT t.*, l.location_name, v.vehicle_code 
+                FROM parking_transaction t 
+                JOIN parking_location l ON t.location_id = l.id 
+                JOIN parking_vehicle v ON t.vehicle_id = v.id 
+                WHERE l.owner_id = ?
+            '''
+            params.append(user_id)
+        else:
+            query = '''
+                SELECT t.*, l.location_name, v.vehicle_code 
+                FROM parking_transaction t 
+                JOIN parking_location l ON t.location_id = l.id 
+                JOIN parking_vehicle v ON t.vehicle_id = v.id 
+            '''
 
         if dateFilter:
             query += ' AND strftime("%Y-%m-%d", t.created_at) = ?'
@@ -102,9 +127,7 @@ def reports():
         if vehicleFilter:
             query += ' AND t.vehicle_id = ?'
             params.append(vehicleFilter)
-        print(query, params, '\n')
         reports = conn.execute(query, params).fetchall()
-        print(reports)
 
     conn.close()
 
@@ -317,7 +340,6 @@ def edit_location(id):
     if request.method == "POST":
         location_name = request.form.get('locationName')
         owner_id = request.form.get('ownerId')
-        print(location_name, owner_id)
         if not location_name or not owner_id:
             flash('Gagal memperbarui data lokasi. Isi semua kolom!', "warning")
         else:
