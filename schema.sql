@@ -57,6 +57,7 @@ CREATE TABLE parking_transaction (
     status TEXT NOT NULL,
     created_at TEXT NOT NULL,
     finished_at TEXT,
+    paid_price INTEGER,
     FOREIGN KEY (location_id) REFERENCES parking_location(id) ON DELETE CASCADE,
     FOREIGN KEY (vehicle_id) REFERENCES parking_vehicle(id) ON DELETE CASCADE
 );
