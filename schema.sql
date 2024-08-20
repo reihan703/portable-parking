@@ -11,7 +11,9 @@ CREATE TABLE parking_user (
     user_pass TEXT NOT NULL,
     name TEXT NOT NULL,
     email TEXT NOT NULL,
-    role TEXT NOT NULL
+    role TEXT NOT NULL,
+    created_by INTEGER NOT NULL,
+    FOREIGN KEY (created_by) REFERENCES parking_admin(id)
 );
 
 CREATE TABLE parking_admin (

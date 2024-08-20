@@ -3,7 +3,7 @@ import math
 import secrets
 import sqlite3
 import string
-from flask import Flask, jsonify, render_template, request, session, url_for, flash, redirect
+from flask import Flask, render_template, request, session, url_for, flash, redirect
 from werkzeug.exceptions import abort
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 
@@ -32,6 +32,7 @@ def generate_random_key(length=16):
     random_key = ''.join(secrets.choice(characters) for _ in range(length))
     return random_key
 
+
 def get_db_connection_row():
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
@@ -41,90 +42,6 @@ def get_db_connection_row():
 def get_db_connection():
     conn = sqlite3.connect('database.db')
     return conn
-
-
-@app.route('/index')
-@login_required
-def index():
-    if not current_user.is_authenticated:
-        return login_manager.unauthorized()
-
-    conn = get_db_connection_row()
-    posts = conn.execute('SELECT * FROM posts').fetchall()
-    conn.close()
-    app.logger.debug("Route accessed")
-    return render_template('index.html', posts=posts)
-
-# -------------------------- CREATE POST --------------------------------
-
-
-def get_post(post_id):
-    conn = get_db_connection_row()
-    post = conn.execute('SELECT * FROM posts WHERE id = ?',
-                        (post_id,)).fetchone()
-    conn.close()
-    if post is None:
-        abort(404)
-    return post
-
-
-@app.route('/<int:post_id>')
-def post(post_id):
-    post = get_post(post_id)
-    return render_template('post.html', post=post)
-
-
-@app.route('/create', methods=('GET', 'POST'))
-def create():
-    if request.method == 'POST':
-        title = request.form['title']
-        content = request.form['content']
-
-        if not title:
-            flash('Title is required!')
-        else:
-            conn = get_db_connection_row()
-            conn.execute('INSERT INTO posts (title, content) VALUES (?, ?)',
-                         (title, content))
-            conn.commit()
-            conn.close()
-            return redirect(url_for('index'))
-
-    return render_template('create.html')
-
-
-@app.route('/<int:id>/edit', methods=('GET', 'POST'))
-def edit(id):
-    post = get_post(id)
-
-    if request.method == 'POST':
-        title = request.form['title']
-        content = request.form['content']
-
-        if not title:
-            flash('Title is required!')
-        else:
-            conn = get_db_connection_row()
-            conn.execute('UPDATE posts SET title = ?, content = ?'
-                         ' WHERE id = ?',
-                         (title, content, id))
-            conn.commit()
-            conn.close()
-            return redirect(url_for('index'))
-
-    return render_template('edit.html', post=post)
-
-
-@app.route('/<int:id>/delete', methods=('POST',))
-def delete(id):
-    post = get_post(id)
-    conn = get_db_connection_row()
-    conn.execute('DELETE FROM posts WHERE id = ?', (id,))
-    conn.commit()
-    conn.close()
-    flash('"{}" was successfully deleted!'.format(post['title']))
-    return redirect(url_for('index'))
-# ----------------------------- END CREATE POST ------------------------------------
 
 
 # ----------------------------- REPORTS ---------------------------------------------
@@ -145,7 +62,6 @@ def reports():
         'SELECT DISTINCT id, location_name FROM parking_location WHERE owner_id = ?', (
             user_id,)
     ).fetchall()
-
 
     # Fetch vehicle options based on the new schema
     vehicle_options = conn.execute(
@@ -212,13 +128,14 @@ def count_price(date_then: str, price: int):
     total_price = hours_difference * price
     return total_price
 
+
 @app.route('/manage_tickets', methods=('GET', 'POST'))
 @login_required
 def manage_tickets():
     conn = get_db_connection_row()
     vehicles = ''
     transaction = ''
-    price=0
+    price = 0
     ticket = ''
     if request.method == 'POST':
         ticket = request.form.get('ticketInput')
@@ -243,7 +160,8 @@ def manage_tickets():
                 flash("Data transaksi tidak ditemukan.", "warning")
                 return render_template('manage_tickets.html', transaction=transaction, price=price)
 
-            price = count_price(date_then=transaction['created_at'], price=transaction['vehicle_rate']) 
+            price = count_price(
+                date_then=transaction['created_at'], price=transaction['vehicle_rate'])
             vehicle_query = '''
                 SELECT DISTINCT v.vehicle_code, v.id 
                 FROM parking_vehicle v
@@ -284,7 +202,7 @@ def delete_ticket(id):
         DELETE FROM parking_transaction
         WHERE transaction_id = ?
     '''
-    conn.execute(query,(id,))
+    conn.execute(query, (id,))
     conn.commit()
     conn.close()
     flash('ID transaksi {} berhasil DIHAPUS'.format(id), "success")
@@ -325,6 +243,7 @@ def get_locations():
     conn.close()
     return locations
 
+
 def get_owners():
     '''
     Get all available owner
@@ -338,6 +257,7 @@ def get_owners():
     owners = conn.execute(query, ('owner',)).fetchall()
     conn.close()
     return owners
+
 
 @app.route('/manage_locations', methods=('GET', 'POST'))
 @login_required
@@ -438,7 +358,7 @@ def add_location_vehicle_code(id):
         # Execute the query and get the cursor
         cursor = conn.cursor()
         cursor.execute(query_to_parking_vehicle,
-                    (vehicle_code, vehicle_name, vehicle_rate))
+                       (vehicle_code, vehicle_name, vehicle_rate))
 
         # Get the ID of the newly inserted vehicle
         new_vehicle_id = cursor.lastrowid
@@ -449,7 +369,7 @@ def add_location_vehicle_code(id):
             VALUES (?, ?)
         '''
         cursor.execute(query_to_parking_location_vehicle,
-                    (location_id, new_vehicle_id))
+                       (location_id, new_vehicle_id))
 
         # Commit the transaction if everything is successful
         conn.commit()
@@ -476,6 +396,7 @@ def edit_location_vehicle_code(id):
         conn.close()
     return redirect(url_for('edit_location', id=location_id))
 
+
 @app.route('/delete_location_vehicle_code/<int:id>/', methods=('GET', 'POST'))
 @login_required
 def delete_location_vehicle_code(id):
@@ -490,6 +411,7 @@ def delete_location_vehicle_code(id):
     locations = get_locations()
     owners = get_owners()
     return redirect(url_for('manage_locations', locations=locations, owners=owners))
+
 
 @app.route('/add_location', methods=('POST',))
 @login_required
@@ -508,13 +430,14 @@ def add_location():
                 VALUES (?, ?, ?, ?)
             '''
 
-            conn.execute(query,(admin_id, owner_id, location_name, location_key))
+            conn.execute(query, (admin_id, owner_id,
+                         location_name, location_key))
             conn.commit()
             conn.close()
 
         locations = get_locations()
         owners = get_owners()
-    
+
     return redirect(url_for('manage_locations', locations=locations, owners=owners))
 # ----------------------------- END MANAGE LOCATIONS --------------------------------------
 
@@ -535,9 +458,6 @@ def login():
         conn.commit()
         conn.close()
         if user_login:
-            # Get id
-            # user_id = user[0]
-            # user_role = user[4]
             user = User(user_login['id'])
             session['id'] = user_login['id']
             session['role'] = user_login['role']
