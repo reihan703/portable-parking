@@ -658,8 +658,7 @@ def handle_event():
         INSERT INTO parking_transaction (transaction_id, location_id, image_path, vehicle_id, status, created_at)
         VALUES (?,?,?,?,?,?)
         '''
-        conn.execute(query_insert, (transaction_id, location_id,
-                     image_path, vehicle_id, status, created_at,))
+        conn.execute(query_insert, (transaction_id, location_id, image_path, vehicle_id['id'], status, created_at,))
         conn.commit()
         conn.close()
         return "Event received", 200
