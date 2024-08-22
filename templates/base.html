@@ -27,8 +27,8 @@
 			<button
 				class="navbar-toggler"
 				type="button"
-				data-toggle="collapse"
-				data-target="#navbarNav"
+				data-bs-toggle="collapse"
+				data-bs-target="#navbarNav"
 				aria-controls="navbarNav"
 				aria-expanded="false"
 				aria-label="Toggle navigation"
@@ -52,7 +52,7 @@
 						>
 					</li>
 					{% if session['role']=='admin' %}
-					<li class="nav-item mr-3">
+					<li class="nav-item mr-5">
 						<a
 							class="nav-link"
 							href="{{url_for('manage_locations')}}"
@@ -60,11 +60,12 @@
 						>
 					</li>
 					{% endif %}
-					<li class="nav-item mx-5">
+					<li class="nav-item">
 						<a
 							type="button"
 							class="btn btn-outline-danger btn-lg"
 							href="{{ url_for('logout') }}"
+							onclick="return confirm('Apakah anda yakin ingin keluar?')"
 						>
 							Logout
 						</a>
@@ -76,112 +77,121 @@
 		<div class="container-fluid pt-5">
 			<!-- Get all flashing messages -->
 			{% with messages = get_flashed_messages(with_categories=True) %}
-				{%if messages %} 
-					{% for category, message in messages %}
-					<div class="alert alert-{{ category }}">{{ message }}</div>
-					{% endfor %} 
-				{% endif %} 
-			{% endwith %} 
-			{% block content%} {%endblock %}
+			{%if messages %} {% for category, message in messages %}
+			<div class="alert alert-{{ category }}">{{ message }}</div>
+			{% endfor %} {% endif %} {% endwith %} {% block content%} {%endblock
+			%}
 		</div>
 		{% if session['role'] == 'admin' %}
-			<!-- Button in the bottom right corner -->
-			<button
-				type="button"
-				class="btn btn-primary rounded-circle"
-				style="position: fixed; bottom: 40px; right: 40px"
-				data-bs-toggle="modal"
-				data-bs-target="#addUserModal"
-			>
-				<i class="fas fa-user-plus"></i>
-			</button>
+		<!-- Button in the bottom right corner -->
+		<button
+			type="button"
+			class="btn btn-primary rounded-circle"
+			style="position: fixed; bottom: 40px; right: 40px"
+			data-bs-toggle="modal"
+			data-bs-target="#addUserModal"
+		>
+			<i class="fas fa-user-plus"></i>
+		</button>
 
-			<!-- Modal for adding user -->
-			<div
-				class="modal fade"
-				id="addUserModal"
-				tabindex="-1"
-				aria-labelledby="addUserModalLabel"
-				aria-hidden="true"
-			>
-				<div class="modal-dialog">
-					<div class="modal-content">
-						<div class="modal-header">
-							<h5 class="modal-title" id="addUserModalLabel">
+		<!-- Modal for adding user -->
+		<div
+			class="modal fade"
+			id="addUserModal"
+			tabindex="-1"
+			aria-labelledby="addUserModalLabel"
+			aria-hidden="true"
+		>
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="addUserModalLabel">
+							Add User
+						</h5>
+						<button
+							type="button"
+							class="btn-close"
+							data-bs-dismiss="modal"
+							aria-label="Close"
+						></button>
+					</div>
+					<div class="modal-body">
+						<form
+							method="POST"
+							action="{{ url_for('add_new_user') }}"
+						>
+							<div class="mb-3">
+								<label for="newUsername" class="form-label"
+									>Username</label
+								>
+								<input
+									type="text"
+									class="form-control"
+									id="newUsername"
+									name="newUsername"
+									required
+								/>
+							</div>
+							<div class="mb-3">
+								<label for="newName" class="form-label"
+									>Name</label
+								>
+								<input
+									type="text"
+									class="form-control"
+									id="newName"
+									name="newName"
+									required
+								/>
+							</div>
+							<div class="mb-3">
+								<label for="newUserEmail" class="form-label"
+									>Email address</label
+								>
+								<input
+									type="email"
+									class="form-control"
+									id="newUserEmail"
+									name="newUserEmail"
+									required
+								/>
+							</div>
+							<div class="mb-3">
+								<label for="role" class="form-label"
+									>Role</label
+								>
+								<select
+									class="form-select"
+									id="newUserRole"
+									name="newUserRole"
+									required
+								>
+									<option selected value="owner">
+										Owner
+									</option>
+									<option value="worker">Worker</option>
+								</select>
+							</div>
+							<div class="mb-3">
+								<label for="newUserPassword" class="form-label"
+									>Password</label
+								>
+								<input
+									type="password"
+									class="form-control"
+									id="newUserPassword"
+									name="newUserPassword"
+									required
+								/>
+							</div>
+							<button type="submit" class="btn btn-primary">
 								Add User
-							</h5>
-							<button
-								type="button"
-								class="btn-close"
-								data-bs-dismiss="modal"
-								aria-label="Close"
-							></button>
-						</div>
-						<div class="modal-body">
-							<form method="POST" action="{{ url_for('add_new_user') }}">
-								<div class="mb-3">
-									<label for="newUsername" class="form-label"
-										>Username</label
-									>
-									<input
-										type="text"
-										class="form-control"
-										id="newUsername"
-										name="newUsername"
-										required
-									/>
-								</div>
-								<div class="mb-3">
-									<label for="newName" class="form-label"
-										>Name</label
-									>
-									<input
-										type="text"
-										class="form-control"
-										id="newName"
-										name="newName"
-										required
-									/>
-								</div>
-								<div class="mb-3">
-									<label for="newUserEmail" class="form-label"
-										>Email address</label
-									>
-									<input
-										type="email"
-										class="form-control"
-										id="newUserEmail"
-										name="newUserEmail"
-										required
-									/>
-								</div>
-								<div class="mb-3">
-									<label for="role" class="form-label">Role</label>
-									<select class="form-select" id="newUserRole" name="newUserRole" required>
-										<option selected value="owner">Owner</option>
-										<option value="worker">Worker</option>
-									</select>
-								</div>
-								<div class="mb-3">
-									<label for="newUserPassword" class="form-label"
-										>Password</label
-									>
-									<input
-										type="password"
-										class="form-control"
-										id="newUserPassword"
-										name="newUserPassword"
-										required
-									/>
-								</div>
-								<button type="submit" class="btn btn-primary">
-									Add User
-								</button>
-							</form>
-						</div>
+							</button>
+						</form>
 					</div>
 				</div>
 			</div>
+		</div>
 		{% endif %}
 
 		<!-- Optional JavaScript -->
