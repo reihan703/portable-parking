@@ -124,7 +124,7 @@ def get_report_options(conn: sqlite3.Connection, user_id: int):
     if not session['role'] == 'admin':
         vehicle_options = conn.execute(
             """
-            SELECT v.vehicle_code, v.vehicle_name, t.vehicle_id 
+            SELECT DISTINCT v.vehicle_code, v.vehicle_name, t.vehicle_id 
             FROM parking_transaction t
             JOIN parking_location l ON t.location_id = l.id
             JOIN parking_vehicle v ON t.vehicle_id = v.id
@@ -135,7 +135,7 @@ def get_report_options(conn: sqlite3.Connection, user_id: int):
     else:
         vehicle_options = conn.execute(
             """
-            SELECT v.vehicle_code, v.vehicle_name, t.vehicle_id 
+            SELECT DISTINCT v.vehicle_code, v.vehicle_name, t.vehicle_id 
             FROM parking_transaction t
             JOIN parking_location l ON t.location_id = l.id
             JOIN parking_vehicle v ON t.vehicle_id = v.id
