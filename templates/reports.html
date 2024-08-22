@@ -36,10 +36,10 @@
 	</div>
 </form>
 
-<div class="px-4 container">
+<div class="px-4 container table-container">
 	{% if reports %}
 		<table class="table table-striped">
-			<thead class="thead-light">
+			<thead class="thead-light sticky-header">
 				<tr>
 					<th scope="col" class="text-center align-middle">
 						Kode Transaksi
@@ -69,7 +69,7 @@
 					</tr>
 				{% endfor %}
 			</tbody>
-			<tfoot class="text-center">
+			<tfoot class="text-center sticky-footer">
 				<tr>
 					<th scope="row" colspan="3">Grand Total</th>
 					<td>{{ grand_total }}</td>

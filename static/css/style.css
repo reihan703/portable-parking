@@ -91,3 +91,30 @@ video {
     border: 1px solid #b2b2b2 !important;
     border-radius: 0.25em;
 }
+
+.table-container {
+    max-height: 75vh; /* Adjust this height as needed */
+    overflow-y: auto;
+    position: relative;
+}
+
+
+.sticky-header th {
+    position: sticky;
+    top: 0;
+    background-color: #f8f9fa; /* Match the header background color */
+    z-index: 1000;
+}
+
+.sticky-footer th,
+.sticky-footer td {
+    position: sticky;
+    bottom: 0;
+    background-color: #f8f9fa; /* Match the footer background color */
+    z-index: 1000;
+}
+
+table th, table td {
+    vertical-align: middle;
+    text-align: center;
+}

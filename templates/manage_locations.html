@@ -2,10 +2,10 @@
 {% block title %} Atur Lokasi {% endblock %}
 {% block content %}
 
-<div class="container px-4">
+<div class="container px-4 table-container">
 	{% if locations %}
 	<table class="table">
-		<thead class="thead-light text-center align-middle">
+		<thead class="thead-light text-center align-middle sticky-header">
 			<tr>
 				<th scope="col" colspan="2">Lokasi</th>
 			</tr>
@@ -28,7 +28,7 @@
 			</tr>
 			{% endfor %}
 		</tbody>
-		<tfoot>
+		<tfoot class="sticky-footer">
 			<tr>
 				<td colspan="2" class="text-end px-5">
 					<a
