@@ -26,6 +26,12 @@ def load_user(user_id):
     return User(user_id)
 
 
+@login_manager.unauthorized_handler
+def unauthorized_callback():
+    flash("Login terlebih dahulu.", "warning")
+    return render_template('login.html'), 401
+
+
 def generate_random_key(length=16):
     # Define the characters to use in the key
     characters = string.ascii_letters + string.digits
@@ -587,7 +593,8 @@ def forgot_password():
     '''
     user = conn.execute(query, (username, email,)).fetchone()
     if user:
-        flash('Data ditemukan, silahkan isi kolom berikut untuk mengubah password', 'success')
+        flash(
+            'Data ditemukan, silahkan isi kolom berikut untuk mengubah password', 'success')
         return render_template('forgot_password.html', id=user['id'])
     conn.close()
     flash('Data tidak ditemukan, mohon pastikan email dan username benar', 'warning')
@@ -620,5 +627,48 @@ def reset_password():
     return render_template('login.html')
 
 # ----------------------------- END LOGIN -------------------------------------------------
+
+
+@app.route('/create_transaction', methods=['POST'])
+def handle_event():
+    data = request.json
+    print(f"Received event: {data}")
+    # Perform some action based on the event
+    if data.get("event"):
+        try:
+            conn = get_db_connection_row()
+            transaction_id = data.get('transaction_id')
+            location_id = data.get('location_id')
+            image_path = data.get('image_path')
+            vehicle_code = data.get('vehicle_code')
+            status = "Parkir"
+            created_at = data.get('created_at')
+
+            # Get vehicle_code
+            query = '''
+            SELECT pv.id
+            FROM parking_vehicle pv
+            JOIN parking_location_vehicle plv ON pv.id = plv.vehicle_id
+            JOIN parking_location pl ON plv.location_id = pl.id
+            WHERE pl.id = ? AND pv.vehicle_code = ?;
+            '''
+            vehicle_id = conn.execute(
+                query, (location_id, vehicle_code,)).fetchone()
+
+            query_insert = '''
+            INSERT INTO parking_transaction (transaction_id, location_id, image_path, vehicle_id, status, created_at)
+            VALUES (?,?,?,?,?,?)
+            '''
+            conn.execute(query_insert, (transaction_id, location_id, image_path, vehicle_id['id'], status, created_at,))
+            conn.commit()
+            conn.close()
+            return "Event received", 200
+        except Exception as e:
+            print(e)
+            return f"Something went wrong: {e}", 400
+
+    return "Event Invalid", 400
+
+
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0', port=5000)
